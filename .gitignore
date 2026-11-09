@@ -1,0 +1,14 @@
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# raw downloads are big, run download_data.py to get them
+data/raw/
+
+# editor / tools
+.vscode/
+.idea/
+.claude/
+.DS_Store
