@@ -278,3 +278,173 @@ def winners_history(winners):
     fig.update_xaxes(title=None)
     fig.update_layout(height=280, margin=dict(t=20, b=30))
     return fig
+
+
+# ===================================================================== seasons
+def championship(standings, colours):
+    final_round = standings["round"].max()
+    final = standings[standings["round"] == final_round].sort_values("position")
+    fig = go.Figure()
+    teams_seen = {}
+    for _, r in final.iterrows():
+        g = standings[standings["driver_id"] == r["driver_id"]]
+        colour = colours.get(r["driver_id"], MUTED)
+        dash = "dot" if colour in teams_seen else "solid"
+        teams_seen[colour] = True
+        fig.add_scatter(x=g["round"], y=g["points"], mode="lines+markers", name=r["driver"],
+                        line=dict(color=colour, width=2.5, dash=dash), marker=dict(size=5),
+                        hovertemplate=f"<b>{r['driver']}</b><br>round %{{x}}: %{{y}} pts<extra></extra>")
+    fig.update_layout(height=430, hovermode="x unified", xaxis_title="Round", yaxis_title="Points",
+                      legend=dict(font=dict(size=11)))
+    return fig
+
+
+def results_matrix(results, races, standings):
+    final = standings[standings["round"] == standings["round"].max()].sort_values("position")
+    order = [d for d in final["driver"] if d in set(results["driver"])]
+    order += [d for d in results["driver"].unique() if d not in order]
+    rounds = races.sort_values("round")
+    cols = rounds["round"].tolist()
+
+    z = results.pivot_table(index="driver", columns="round", values="position", aggfunc="min")
+    txt = results.pivot_table(index="driver", columns="round", values="position_text", aggfunc="first")
+    z = z.reindex(index=order, columns=cols)
+    txt = txt.reindex(index=order, columns=cols).fillna("")
+    race_ids = np.tile(rounds["race_id"].to_numpy(), (len(order), 1))
+
+    labels = [f"{a}" for a in rounds["gp_abbr"].fillna(rounds["round"].astype(str))]
+    fig = go.Figure(go.Heatmap(
+        z=z.to_numpy(), x=labels, y=order, text=txt.to_numpy(), texttemplate="%{text}",
+        textfont=dict(size=10), customdata=race_ids, xgap=2, ygap=2,
+        colorscale=[[0, "#ffd700"], [0.1, "#e10600"], [0.45, "#5a2a3a"], [1, "#23232f"]],
+        zmin=1, zmax=20, colorbar=dict(title="Pos", thickness=10),
+        hovertemplate="%{y}<br>%{x}: %{text}<extra>click to open race</extra>",
+    ))
+    fig.update_yaxes(autorange="reversed", tickfont=dict(size=11))
+    fig.update_xaxes(side="top", tickfont=dict(size=11))
+    fig.update_layout(height=max(380, 22 * len(order)), margin=dict(l=130, t=60, r=20, b=20),
+                      plot_bgcolor=BG)
+    return fig
+
+
+# ===================================================================== drivers
+def driver_scatter(drivers, highlight):
+    d = drivers[drivers["starts"] >= 10].copy()
+    d["is_hl"] = d["driver_id"].isin(highlight)
+    fig = go.Figure()
+    base = d[~d["is_hl"]]
+    fig.add_scatter(x=base["starts"], y=base["win_rate"] * 100, mode="markers", name="All drivers",
+                    marker=dict(size=6 + base["titles"] * 4, color=base["first_year"], colorscale="Plasma",
+                                cmin=1950, cmax=2026, opacity=0.35 if len(highlight) else 0.75,
+                                colorbar=dict(title="Debut", thickness=10), line=dict(width=0)),
+                    customdata=base[["name", "wins", "titles", "first_year", "last_year"]],
+                    hovertemplate="<b>%{customdata[0]}</b> (%{customdata[3]}–%{customdata[4]})"
+                                  "<br>%{x} starts · %{customdata[1]} wins · %{customdata[2]} titles<extra></extra>")
+    hl = d[d["is_hl"]]
+    if len(hl):
+        fig.add_scatter(x=hl["starts"], y=hl["win_rate"] * 100, mode="markers+text", text=hl["name"],
+                        textposition="top center", name="Selected",
+                        marker=dict(size=10 + hl["titles"] * 4, color=hl["colour"], line=dict(color="white", width=2)),
+                        customdata=hl[["name", "wins", "titles"]],
+                        hovertemplate="<b>%{customdata[0]}</b><br>%{x} starts · %{customdata[1]} wins"
+                                      " · %{customdata[2]} titles<extra></extra>")
+    fig.update_xaxes(type="log", title="Race starts (log scale)", tickvals=[10, 20, 50, 100, 200, 400])
+    fig.update_yaxes(title="Win rate (%)")
+    fig.update_layout(height=480, showlegend=False,
+                      title=dict(text="Every driver with 10+ starts · bubble size = titles", font=dict(size=14)))
+    return fig
+
+
+PALETTE = ["#e10600", "#27f4d2", "#ffd12e", "#ff8000", "#6692ff", "#c77dff"]
+
+
+def career_lines(season_pos, names, colours):
+    if season_pos.empty:
+        return empty("Pick drivers above to compare their careers", 380)
+    fig = go.Figure()
+    used = set()
+    for i, (did, g) in enumerate(season_pos.groupby("driver_id", sort=False)):
+        # same colour as in the scatter, unless two picked drivers share a team colour
+        colour = colours.get(did)
+        if colour is None or colour in used:
+            colour = PALETTE[i % len(PALETTE)]
+        used.add(colour)
+        g = g.set_index("year").reindex(range(g["year"].min(), g["year"].max() + 1)).reset_index()
+        fig.add_scatter(x=g["year"], y=g["position"], mode="lines+markers", name=names[did], connectgaps=False,
+                        line=dict(color=colour, width=2.5), marker=dict(size=8),
+                        hovertemplate=f"<b>{names[did]}</b><br>%{{x}}: P%{{y}} in the championship<extra></extra>")
+    fig.update_yaxes(autorange="reversed", title="Championship position", dtick=2)
+    fig.update_xaxes(title="Season", dtick=1 if season_pos["year"].nunique() < 16 else None)
+    fig.update_layout(height=380, legend=dict(orientation="h", y=1.1))
+    return fig
+
+
+# ===================================================================== eras
+def outcome_area(results):
+    share = results.groupby(["year", "outcome"]).size().rename("n").reset_index()
+    share["share"] = share["n"] / share.groupby("year")["n"].transform("sum") * 100
+    fig = go.Figure()
+    for outcome, colour in OUTCOME_COLOURS.items():
+        g = share[share["outcome"] == outcome]
+        fig.add_scatter(x=g["year"], y=g["share"], name=outcome, stackgroup="one", mode="lines",
+                        line=dict(width=0.5, color=colour), fillcolor=colour,
+                        hovertemplate=f"{outcome}: %{{y:.0f}}%<extra></extra>")
+    fig.update_yaxes(range=[0, 100], ticksuffix="%", title=None)
+    fig.update_layout(height=400, hovermode="x unified", legend=dict(orientation="h", y=-0.15))
+    return fig
+
+
+def engine_stream(results, top=8):
+    wins = results[results["is_win"]]
+    best = wins["engine"].value_counts().head(top).index
+    wins = wins.assign(engine=wins["engine"].where(wins["engine"].isin(best), "Other"))
+    table = wins.groupby(["year", "engine"]).size().unstack(fill_value=0)
+    # one season has only ~10-20 wins, so use a 3-season rolling window to show eras instead of noise
+    table = table.rolling(3, center=True, min_periods=1).sum()
+    brand = {"Ferrari": "#e10600", "Mercedes": "#27f4d2", "Ford": "#1f6fd1", "Renault": "#ffd12e",
+             "Honda": "#f0f0f0", "Honda RBPT": "#c77dff", "Climax": "#2a9d8f", "TAG": "#ff8000",
+             "BMW": "#6692ff", "Alfa Romeo": "#a50f2d", "Other": "#555566"}
+    spare = ["#f4a261", "#8ecae6", "#b5838d", "#84a59d"]
+    fig = go.Figure()
+    for i, engine in enumerate(list(best) + ["Other"]):
+        if engine not in table:
+            continue
+        colour = brand.get(engine, spare[i % len(spare)])
+        fig.add_scatter(x=table.index, y=table[engine], name=engine, stackgroup="one", groupnorm="percent",
+                        mode="lines", line=dict(width=0.5, color=colour, shape="spline", smoothing=0.6),
+                        fillcolor=colour,
+                        hovertemplate=f"{engine}: %{{y:.0f}}% of wins<extra></extra>")
+    fig.update_yaxes(ticksuffix="%", range=[0, 100])
+    fig.update_layout(height=400, hovermode="x unified", legend=dict(orientation="h", y=-0.15))
+    return fig
+
+
+def grid_heatmap(results):
+    g = results[results["finished"] & results["grid"].between(1, 20) & results["position"].between(1, 20)]
+    if g.empty:
+        return empty("No finishers in this selection")
+    table = pd.crosstab(g["position"], g["grid"]).reindex(index=range(1, 21), columns=range(1, 21), fill_value=0)
+    share = table / table.sum(axis=0).replace(0, np.nan) * 100
+    fig = go.Figure(go.Heatmap(z=share.to_numpy(), x=list(range(1, 21)), y=list(range(1, 21)),
+                               colorscale=[[0, BG], [0.3, "#5a2a3a"], [1, RED]], xgap=1, ygap=1,
+                               customdata=table.to_numpy(),
+                               colorbar=dict(title="% of starters<br>from that slot", thickness=10),
+                               hovertemplate="from P%{x} to P%{y}<br>%{z:.1f}% (%{customdata} results)<extra></extra>"))
+    fig.update_yaxes(autorange="reversed", title="Finishing position", dtick=1)
+    fig.update_xaxes(title="Starting position", dtick=1)
+    fig.update_layout(height=470)
+    return fig
+
+
+def age_violin(results):
+    d = results.dropna(subset=["age"]).copy()
+    d["decade"] = (d["year"] // 10 * 10).astype(str) + "s"
+    fig = go.Figure()
+    fig.add_violin(x=d["decade"], y=d["age"], name="All starters", side="negative", line_color=MUTED,
+                   fillcolor="rgba(154,154,174,0.35)", meanline_visible=True, points=False)
+    w = d[d["is_win"]]
+    fig.add_violin(x=w["decade"], y=w["age"], name="Race winners", side="positive", line_color=RED,
+                   fillcolor="rgba(225,6,0,0.4)", meanline_visible=True, points=False)
+    fig.update_layout(height=400, violingap=0.1, violinmode="overlay", yaxis_title="Age on race day",
+                      legend=dict(orientation="h", y=1.1))
+    return fig

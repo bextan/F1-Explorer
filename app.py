@@ -19,6 +19,14 @@ drivers = pd.read_csv(D + "drivers.csv")
 
 results = results.merge(races[["race_id", "circuit_id"]], on="race_id")
 YEAR_MIN, YEAR_MAX = int(races["year"].min()), int(races["year"].max())
+LAST_FULL_SEASON = int(standings.groupby("year")["round"].max().pipe(
+    lambda s: s[s.index < YEAR_MAX].index.max()))
+
+# championship position at the end of each season (for career lines)
+last_round = standings.groupby("year")["round"].transform("max")
+season_final = standings[standings["round"] == last_round]
+
+driver_names = drivers.set_index("driver_id")["name"].to_dict()
 
 app = Dash(__name__, title="F1 Explorer", suppress_callback_exceptions=True,
            external_stylesheets=["https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700;900&display=swap"])
@@ -85,7 +93,53 @@ circuits_tab = html.Div([
     ]),
 ])
 
-PAGES = {"circuits": circuits_tab}
+# ------------------------------------------------------------------ layout: seasons tab
+seasons_tab = html.Div([
+    html.Div([
+        html.Div([html.Label("Season", className="title"),
+                  dcc.Dropdown(id="season", options=sorted(races["year"].unique(), reverse=True),
+                               value=LAST_FULL_SEASON, clearable=False)], className="filter"),
+        html.Div(id="season-summary", className="filter grow"),
+    ], className="filters"),
+    html.Div([html.H3("Championship fight"), graph("champ")], className="card"),
+    html.Div([html.H3("Every result of the season"), graph("matrix"),
+              html.P("Click any cell to open that race on the circuit page.", className="note")], className="card"),
+])
+
+# ------------------------------------------------------------------ layout: drivers tab
+driver_options = [{"label": f"{r.name} ({r.first_year}–{r.last_year})", "value": r.driver_id}
+                  for r in drivers.sort_values("starts", ascending=False).itertuples()]
+drivers_tab = html.Div([
+    html.Div([
+        html.Div([html.Label("Compare drivers (type to search, or click a dot)", className="title"),
+                  dcc.Dropdown(id="drivers", options=driver_options, multi=True,
+                               value=["lewis-hamilton", "max-verstappen", "michael-schumacher"])],
+                 className="filter grow"),
+    ], className="filters"),
+    html.Div([
+        html.Div([graph("driver-scatter")], className="card"),
+        html.Div([html.H3("Career path"), graph("career"), html.Div(id="driver-table")], className="card"),
+    ], className="grid-2"),
+])
+
+# ------------------------------------------------------------------ layout: eras tab
+eras_tab = html.Div([
+    html.Div([html.Div([html.Label("Seasons", className="title"), year_slider("era-years")],
+                       className="filter grow")], className="filters"),
+    html.Div([
+        html.Div([html.H3("How do races end?"), graph("outcomes"),
+                  html.P("Share of all starters per season.", className="note")], className="card"),
+        html.Div([html.H3("Whose engines win?"), graph("engines"),
+                  html.P("Share of race wins by engine manufacturer (3-season rolling window).", className="note")],
+                 className="card"),
+        html.Div([html.H3("Grid slot vs. finishing position"), graph("gridmap"),
+                  html.P("Each column sums to 100%: read a column to see where drivers starting from "
+                         "that slot usually end up (finishers only).", className="note")], className="card"),
+        html.Div([html.H3("Are drivers getting younger?"), graph("ages")], className="card"),
+    ], className="grid-2"),
+])
+
+PAGES = {"circuits": circuits_tab, "seasons": seasons_tab, "drivers": drivers_tab, "eras": eras_tab}
 
 app.layout = html.Div([
     dcc.Store(id="selection", data=None),
@@ -147,10 +201,10 @@ def update_map(search, types, years, calendar, selection):
 @app.callback(
     Output("selection", "data"), Output("tabs", "value"),
     Input("map", "clickData"), Input({"type": "circuit-item", "id": ALL}, "n_clicks"),
-    Input("close", "n_clicks"),
+    Input("matrix", "clickData"), Input("close", "n_clicks"),
     prevent_initial_call=True,
 )
-def select_circuit(map_click, item_clicks, close):
+def select_circuit(map_click, item_clicks, matrix_click, close):
     trigger = ctx.triggered_id
     if trigger == "close":
         return None, no_update
@@ -159,6 +213,10 @@ def select_circuit(map_click, item_clicks, close):
         if "customdata" not in point:
             return no_update, no_update
         return {"circuit": point["customdata"][0], "race": None}, no_update
+    if trigger == "matrix" and matrix_click:
+        race_id = int(matrix_click["points"][0]["customdata"])
+        circuit = races.loc[races["race_id"] == race_id, "circuit_id"].iloc[0]
+        return {"circuit": circuit, "race": race_id}, "circuits"
     if isinstance(trigger, dict) and any(item_clicks):
         # list items re-render with n_clicks=0, only react to a real click
         if ctx.triggered[0]["value"]:
@@ -265,6 +323,78 @@ def show_race(race_id):
             charts.lap_chart(res, race_laps, race_pits),
             charts.tyre_strategy(res, race_stints),
             weather)
+
+
+# ================================================================== callbacks: seasons
+@app.callback(
+    Output("champ", "figure"), Output("matrix", "figure"), Output("season-summary", "children"),
+    Input("season", "value"),
+)
+def show_season(year):
+    st = standings[standings["year"] == year]
+    res = results[results["year"] == year]
+    rc = races[races["year"] == year]
+    colours = res.groupby("driver_id")["colour"].agg(lambda c: c.value_counts().index[0]).to_dict()
+
+    final = st[st["round"] == st["round"].max()].sort_values("position")
+    leader = final.iloc[0]
+    winners = res[res["is_win"]]["driver"].nunique()
+    summary = html.Div([
+        stat(leader["driver"], "champion" if year < YEAR_MAX else "leading"),
+        stat(f"{leader['points']:g}", "points"),
+        stat(len(rc), "races"),
+        stat(winners, "different winners"),
+    ], className="stats", style={"marginTop": 0})
+    return charts.championship(st[st["driver_id"].isin(final["driver_id"].head(10))], colours), \
+        charts.results_matrix(res, rc, st), summary
+
+
+# ================================================================== callbacks: drivers
+@app.callback(Output("drivers", "value"), Input("driver-scatter", "clickData"), State("drivers", "value"),
+              prevent_initial_call=True)
+def add_driver_from_click(click, current):
+    if not click or "customdata" not in click["points"][0]:
+        return no_update
+    name = click["points"][0]["customdata"][0]
+    did = drivers.loc[drivers["name"] == name, "driver_id"].iloc[0]
+    current = current or []
+    return [d for d in current if d != did] if did in current else (current + [did])[-6:]
+
+
+@app.callback(
+    Output("driver-scatter", "figure"), Output("career", "figure"), Output("driver-table", "children"),
+    Input("drivers", "value"),
+)
+def show_drivers(selected):
+    selected = selected or []
+    path = season_final[season_final["driver_id"].isin(selected)]
+    path = path.set_index("driver_id").loc[[d for d in selected if d in set(path["driver_id"])]].reset_index()
+
+    sel = drivers.set_index("driver_id").loc[[d for d in selected if d in set(drivers["driver_id"])]]
+    header = html.Tr([html.Td("")] + [html.Td(html.B(n)) for n in sel["name"]])
+    rows = [header]
+    for label, col, fmt in [("Seasons", None, None), ("Starts", "starts", "{:.0f}"), ("Wins", "wins", "{:.0f}"),
+                            ("Podiums", "podiums", "{:.0f}"), ("Poles", "poles", "{:.0f}"),
+                            ("Titles", "titles", "{:.0f}"), ("Win rate", "win_rate", "{:.1%}"),
+                            ("Avg finish", "avg_finish", "{:.1f}"), ("DNF rate", "dnf_rate", "{:.0%}")]:
+        if col is None:
+            cells = [f"{r.first_year}–{r.last_year}" for r in sel.itertuples()]
+        else:
+            cells = [fmt.format(v) if pd.notna(v) else "–" for v in sel[col]]
+        rows.append(html.Tr([html.Td(label, className="team")] + [html.Td(c) for c in cells]))
+    table = html.Table(html.Tbody(rows), className="classification", style={"marginTop": "10px"})
+    return charts.driver_scatter(drivers, selected), charts.career_lines(path, driver_names, drivers.set_index("driver_id")["colour"].to_dict()), table
+
+
+# ================================================================== callbacks: eras
+@app.callback(
+    Output("outcomes", "figure"), Output("engines", "figure"), Output("gridmap", "figure"),
+    Output("ages", "figure"),
+    Input("era-years", "value"),
+)
+def show_eras(years):
+    r = results[results["year"].between(*years)]
+    return charts.outcome_area(r), charts.engine_stream(r), charts.grid_heatmap(r), charts.age_violin(r)
 
 
 if __name__ == "__main__":
