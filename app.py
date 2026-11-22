@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -483,4 +484,4 @@ def show_eras(years):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=8050)
+    app.run(debug=False, port=int(os.environ.get("PORT", 8050)))
