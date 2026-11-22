@@ -1,79 +1,79 @@
-id,name,full_name,type,direction,place,country,latitude,longitude,length,turns,races,first_year,last_year,top_winner,top_winner_wins,pole_win_rate,on_calendar
-adelaide,Adelaide,Adelaide Street Circuit,Street,clockwise,Adelaide,Australia,-34.927222,138.617222,3.78,16,11,1985,1995,Ayrton Senna,2,0.455,False
-aida,Aida,Okayama International Circuit,Race,clockwise,Aida,Japan,34.915,134.221111,3.703,13,2,1994,1995,Michael Schumacher,2,0.0,False
-ain-diab,Ain-Diab,Ain-Diab Circuit,Road,clockwise,Casablanca,Morocco,33.578611,-7.6875,7.618,18,1,1958,1958,Stirling Moss,1,0.0,False
-aintree,Aintree,Aintree Motor Racing Circuit,Road,clockwise,Aintree,United Kingdom,53.476944,-2.940556,4.828,8,5,1955,1962,Stirling Moss,2,0.6,False
-anderstorp,Anderstorp Raceway,Anderstorp Raceway,Race,clockwise,Anderstorp,Sweden,57.264167,13.601389,4.031,8,6,1973,1978,Niki Lauda,2,0.167,False
-austin,Americas,Circuit of the Americas,Race,anti clockwise,Austin,United States of America,30.132778,-97.641111,5.513,20,14,2012,2026,Lewis Hamilton,5,0.5,True
-avus,AVUS,AVUS,Road,anti clockwise,Berlin,Germany,52.480556,13.251389,8.3,4,1,1959,1959,Tony Brooks,1,1.0,False
-bahrain,Bahrain,Bahrain International Circuit,Race,clockwise,Sakhir,Bahrain,26.0325,50.510556,5.412,15,22,2004,2025,Lewis Hamilton,5,0.5,False
-baku,Baku,Baku City Circuit,Street,anti clockwise,Baku,Azerbaijan,40.3725,49.853333,6.003,20,10,2016,2026,Max Verstappen,2,0.4,True
-brands-hatch,Brands Hatch,Brands Hatch,Race,clockwise,Fawkham,United Kingdom,51.356667,0.2625,4.207,9,14,1964,1986,Niki Lauda,3,0.286,False
-bremgarten,Bremgarten,Circuit Bremgarten,Road,clockwise,Bern,Switzerland,46.95,7.410833,7.28,13,5,1950,1954,Juan Manuel Fangio,2,0.2,False
-buddh,Buddh,Buddh International Circuit,Race,clockwise,Greater Noida,India,28.350556,77.535,5.125,16,3,2011,2013,Sebastian Vettel,3,1.0,False
-buenos-aires,Juan y Oscar Gálvez,Autódromo Juan y Oscar Gálvez,Race,clockwise,Buenos Aires,Argentina,-34.694272,-58.459347,4.259,19,20,1953,1998,Juan Manuel Fangio,4,0.35,False
-bugatti,Bugatti,Bugatti Circuit,Race,clockwise,Le Mans,France,47.937694,0.225611,4.185,14,1,1967,1967,Jack Brabham,1,0.0,False
-caesars-palace,Caesars Palace,Caesars Palace,Street,anti clockwise,Las Vegas,United States of America,36.116944,-115.175,3.65,14,2,1981,1982,Michele Alboreto,1,0.0,False
-catalunya,Catalunya,Circuit de Barcelona-Catalunya,Race,clockwise,Montmeló,Spain,41.57,2.261111,4.657,14,36,1991,2026,Lewis Hamilton,7,0.694,True
-clermont-ferrand,Charade,Charade Circuit,Road,clockwise,Clermont-Ferrand,France,45.747222,3.038889,8.055,48,4,1965,1972,Jackie Stewart,2,0.5,False
-dallas,Fair Park,Fair Park,Street,anti clockwise,Dallas,United States of America,32.781944,-96.765556,3.901,23,1,1984,1984,Keke Rosberg,1,0.0,False
-detroit,Detroit,Detroit Street Circuit,Street,anti clockwise,Detroit,United States of America,42.32975,-83.040111,4.023,22,7,1982,1988,Ayrton Senna,3,0.429,False
-dijon,Dijon-Prenois,Dijon-Prenois,Race,clockwise,Dijon,France,47.3625,4.899167,3.801,12,6,1974,1984,Ronnie Peterson,1,0.333,False
-donington,Donington Park,Donington Park,Race,clockwise,Leicestershire,United Kingdom,52.829806,-1.379556,4.023,12,1,1993,1993,Ayrton Senna,1,0.0,False
-east-london,Prince George,Prince George Circuit,Race,clockwise,East London,South Africa,-33.048611,27.873611,3.92,9,3,1962,1965,Jim Clark,2,0.667,False
-estoril,Estoril,Autódromo do Estoril,Race,clockwise,Estoril,Portugal,38.750833,-9.394167,4.36,13,13,1984,1996,Nigel Mansell,3,0.462,False
-fuji,Fuji,Fuji Speedway,Race,clockwise,Oyama,Japan,35.371667,138.926667,4.563,16,4,1976,2008,Mario Andretti,1,0.5,False
-hockenheimring,Hockenheimring,Hockenheimring,Race,clockwise,Hockenheim,Germany,49.327778,8.565833,4.574,17,37,1970,2019,Michael Schumacher,4,0.486,False
-hungaroring,Hungaroring,Hungaroring,Race,clockwise,Budapest,Hungary,47.582222,19.251111,4.381,14,41,1986,2026,Lewis Hamilton,8,0.415,True
-imola,Enzo e Dino Ferrari,Autodromo Internazionale Enzo e Dino Ferrari,Race,anti clockwise,Imola,Italy,44.341111,11.713333,4.909,19,32,1980,2025,Michael Schumacher,7,0.344,False
-indianapolis,Indianapolis,Indianapolis Motor Speedway,Race,clockwise,Indianapolis,United States of America,39.798333,-86.232778,4.192,13,19,1950,2007,Michael Schumacher,5,0.263,False
-interlagos,José Carlos Pace,Autódromo José Carlos Pace,Race,anti clockwise,São Paulo,Brazil,-23.701111,-46.697222,4.309,15,43,1973,2026,Michael Schumacher,4,0.465,True
-istanbul,İstanbul Park,TOSFED İstanbul Park,Race,anti clockwise,Istanbul,Turkey,40.951667,29.405,5.338,14,9,2005,2021,Felipe Massa,3,0.667,False
-jacarepagua,Nelson Piquet,Autódromo Internacional Nelson Piquet,Race,anti clockwise,Rio de Janeiro,Brazil,-22.975556,-43.395,5.031,11,10,1978,1989,Alain Prost,5,0.1,False
-jarama,Jarama,Circuito de Madrid Jarama - RACE,Race,clockwise,Madrid,Spain,40.617111,-3.585583,3.314,14,9,1968,1981,Mario Andretti,2,0.444,False
-jeddah,Jeddah,Jeddah Corniche Circuit,Street,anti clockwise,Jeddah,Saudi Arabia,21.543333,39.172778,6.174,27,5,2021,2025,Max Verstappen,2,0.6,False
-jerez,Jerez,Circuito de Jerez,Race,clockwise,Jerez de la Frontera,Spain,36.708333,-6.034167,4.428,15,7,1986,1997,Alain Prost,2,0.429,False
-kyalami,Kyalami,Kyalami Racing Circuit,Race,anti clockwise,Midrand,South Africa,-25.998611,28.068889,4.261,13,20,1967,1993,Niki Lauda,3,0.2,False
-las-vegas,Las Vegas,Las Vegas Street Circuit,Street,anti clockwise,Las Vegas,United States of America,36.175,-115.136389,6.201,17,3,2023,2025,Max Verstappen,2,0.333,True
-long-beach,Long Beach,Long Beach,Street,clockwise,Long Beach,United States of America,33.766389,-118.192778,3.275,18,8,1976,1983,Gilles Villeneuve,1,0.5,False
-lusail,Lusail,Lusail International Circuit,Race,clockwise,Lusail,Qatar,25.49,51.454167,5.419,16,4,2021,2025,Max Verstappen,3,0.5,True
-madring,Madring,Circuito de Madring,Street,clockwise,Madrid,Spain,40.465278,-3.615278,5.416,22,1,2026,2026,Kimi Antonelli,1,0.0,True
-magny-cours,Magny-Cours,Circuit de Nevers Magny-Cours,Race,clockwise,Nevers,France,46.863242,3.164228,4.411,17,18,1991,2008,Michael Schumacher,8,0.294,False
-marina-bay,Marina Bay,Marina Bay Street Circuit,Street,anti clockwise,Singapore,Singapore,1.291531,103.86385,4.927,19,17,2008,2026,Sebastian Vettel,5,0.706,True
-melbourne,Albert Park,Albert Park Circuit,Street,clockwise,Melbourne,Australia,-37.849722,144.968333,5.278,14,29,1996,2026,Michael Schumacher,4,0.448,True
-mexico-city,Hermanos Rodríguez,Autódromo Hermanos Rodríguez,Race,clockwise,Mexico City,Mexico,19.404197,-99.088747,4.304,17,26,1963,2026,Max Verstappen,6,0.462,True
-miami,Miami,Miami International Autodrome,Street,anti clockwise,Miami Gardens,United States of America,25.958056,-80.238889,5.412,19,5,2022,2026,Max Verstappen,2,0.2,True
-monaco,Monaco,Circuit de Monaco,Street,clockwise,Monte Carlo,Monaco,43.734722,7.420556,3.337,19,72,1950,2026,Ayrton Senna,6,0.479,True
-monsanto,Monsanto,Circuito de Monsanto,Street,clockwise,Lisbon,Portugal,38.719722,-9.203056,5.44,9,1,1959,1959,Stirling Moss,1,1.0,False
-mont-tremblant,Mont-Tremblant,Circuit Mont-Tremblant,Race,clockwise,Mont-Tremblant,Canada,46.187707,-74.609936,4.265,15,2,1968,1970,Jacky Ickx,1,0.0,False
-montjuic,Montjuïc,Circuito de Montjuïc,Street,anti clockwise,Barcelona,Spain,41.366389,2.151667,3.791,12,4,1969,1975,Jackie Stewart,2,0.0,False
-montreal,Gilles Villeneuve,Circuit Gilles Villeneuve,Street,clockwise,Montreal,Canada,45.500578,-73.522461,4.361,14,45,1978,2026,Lewis Hamilton,7,0.489,True
-monza,Monza,Autodromo Nazionale Monza,Race,clockwise,Monza,Italy,45.620556,9.289444,5.793,11,76,1950,2026,Michael Schumacher,5,0.342,True
-mosport,Mosport,Canadian Tire Motorsport Park,Race,clockwise,Bowmanville,Canada,44.05,-78.677778,3.957,10,8,1967,1977,Jackie Stewart,2,0.5,False
-mugello,Mugello,Autodromo Internazionale del Mugello,Race,clockwise,Scarperia e San Piero,Italy,43.9975,11.371944,5.245,15,1,2020,2020,Lewis Hamilton,1,1.0,False
-nivelles,Nivelles-Baulers,Nivelles-Baulers,Race,clockwise,Nivelles,Belgium,50.621111,4.326944,3.724,7,2,1972,1974,Emerson Fittipaldi,2,0.5,False
-nurburgring,Nürburgring,Nürburgring,Race,clockwise,Nürburg,Germany,50.335556,6.9475,5.148,15,41,1951,2020,Michael Schumacher,5,0.366,False
-paul-ricard,Paul Ricard,Circuit Paul Ricard,Race,clockwise,Le Castellet,France,43.250556,5.791667,5.842,15,18,1971,2022,Alain Prost,4,0.611,False
-pedralbes,Pedralbes,Pedralbes Circuit,Street,clockwise,Barcelona,Spain,41.390278,2.116667,6.316,6,2,1951,1954,Mike Hawthorn,1,0.0,False
-pescara,Pescara,Pescara Circuit,Road,clockwise,Pescara,Italy,42.475,14.150833,25.579,24,1,1957,1957,Stirling Moss,1,0.0,False
-phoenix,Phoenix,Phoenix Street Circuit,Street,anti clockwise,Phoenix,United States of America,33.447917,-112.074583,3.721,15,3,1989,1991,Ayrton Senna,2,0.333,False
-portimao,Portimão,Algarve International Circuit,Race,clockwise,Portimão,Portugal,37.221944,-8.629444,4.653,15,2,2020,2021,Lewis Hamilton,2,0.5,False
-porto,Boavista,Circuito da Boavista,Street,anti clockwise,Porto,Portugal,41.170472,-8.67325,7.406,19,2,1958,1960,Stirling Moss,1,0.5,False
-reims,Reims-Gueux,Reims-Gueux,Road,clockwise,Reims,France,49.254075,3.930561,8.302,7,11,1950,1966,Juan Manuel Fangio,3,0.545,False
-riverside,Riverside,Riverside International Raceway,Race,clockwise,Riverside,United States of America,33.937,-117.272556,5.271,9,1,1960,1960,Stirling Moss,1,1.0,False
-rouen,Rouen-Les-Essarts,Rouen-Les-Essarts,Road,clockwise,Rouen,France,49.330639,1.004583,6.542,12,5,1952,1968,Dan Gurney,2,0.4,False
-sebring,Sebring,Sebring International Raceway,Road,clockwise,Sebring,United States of America,27.454741,-81.348267,8.36,17,1,1959,1959,Bruce McLaren,1,0.0,False
-sepang,Sepang,Sepang International Circuit,Race,clockwise,Sepang,Malaysia,2.760556,101.7375,5.543,15,20,1999,2026,Sebastian Vettel,4,0.5,True
-shanghai,Shanghai,Shanghai International Circuit,Race,clockwise,Shanghai,China,31.338889,121.219722,5.451,16,19,2004,2026,Lewis Hamilton,6,0.632,True
-silverstone,Silverstone,Silverstone Circuit,Race,clockwise,Silverstone,United Kingdom,52.078611,-1.016944,5.891,18,61,1950,2026,Lewis Hamilton,9,0.361,True
-sirius,Sirius,Sirius Autodrom,Road,clockwise,Sirius,Russia,43.410278,39.968271,5.848,18,8,2014,2021,Lewis Hamilton,5,0.25,False
-spa-francorchamps,Spa-Francorchamps,Circuit de Spa-Francorchamps,Race,clockwise,Spa,Belgium,50.437222,5.971389,7.004,19,59,1950,2026,Michael Schumacher,6,0.373,True
-spielberg,Red Bull Ring,Red Bull Ring,Race,clockwise,Spielberg,Austria,47.219722,14.764722,4.326,10,40,1970,2026,Max Verstappen,5,0.4,True
-suzuka,Suzuka,Suzuka Circuit,Race,clockwise,Suzuka,Japan,34.843056,136.540556,5.807,18,36,1987,2026,Michael Schumacher,6,0.556,True
-valencia,Valencia,Valencia Street Circuit,Street,clockwise,Valencia,Spain,39.458778,-0.325556,5.419,25,5,2008,2012,Sebastian Vettel,2,0.6,False
-watkins-glen,Watkins Glen,Watkins Glen International,Race,clockwise,Watkins Glen,United States of America,42.336944,-76.927222,5.435,11,20,1961,1980,Graham Hill,3,0.5,False
-yas-marina,Yas Marina,Yas Marina Circuit,Race,anti clockwise,Abu Dhabi,United Arab Emirates,24.467222,54.603056,5.281,16,17,2009,2025,Lewis Hamilton,5,0.706,True
-yeongam,Korea,Korea International Circuit,Race,anti clockwise,Yeongam,South Korea,34.733333,126.416667,5.615,18,4,2010,2013,Sebastian Vettel,3,0.25,False
-zandvoort,Zandvoort,Circuit Zandvoort,Race,clockwise,Zandvoort,Netherlands,52.388819,4.540922,4.259,14,36,1952,2026,Jim Clark,4,0.5,True
-zeltweg,Zeltweg,Zeltweg,Road,clockwise,Zeltweg,Austria,47.202222,14.742222,3.186,4,1,1964,1964,Lorenzo Bandini,1,0.0,False
-zolder,Zolder,Circuit Zolder,Race,clockwise,Heusden-Zolder,Belgium,50.988889,5.255556,4.262,15,10,1973,1984,Niki Lauda,2,0.5,False
+id,name,full_name,type,direction,place,country,country_iso3,latitude,longitude,length,turns,races,first_year,last_year,top_winner,top_winner_wins,pole_win_rate,on_calendar
+adelaide,Adelaide,Adelaide Street Circuit,Street,clockwise,Adelaide,Australia,AUS,-34.927222,138.617222,3.78,16,11,1985,1995,Ayrton Senna,2,0.455,False
+aida,Aida,Okayama International Circuit,Race,clockwise,Aida,Japan,JPN,34.915,134.221111,3.703,13,2,1994,1995,Michael Schumacher,2,0.0,False
+ain-diab,Ain-Diab,Ain-Diab Circuit,Road,clockwise,Casablanca,Morocco,MAR,33.578611,-7.6875,7.618,18,1,1958,1958,Stirling Moss,1,0.0,False
+aintree,Aintree,Aintree Motor Racing Circuit,Road,clockwise,Aintree,United Kingdom,GBR,53.476944,-2.940556,4.828,8,5,1955,1962,Stirling Moss,2,0.6,False
+anderstorp,Anderstorp Raceway,Anderstorp Raceway,Race,clockwise,Anderstorp,Sweden,SWE,57.264167,13.601389,4.031,8,6,1973,1978,Niki Lauda,2,0.167,False
+austin,Americas,Circuit of the Americas,Race,anti clockwise,Austin,United States of America,USA,30.132778,-97.641111,5.513,20,14,2012,2026,Lewis Hamilton,5,0.5,True
+avus,AVUS,AVUS,Road,anti clockwise,Berlin,Germany,DEU,52.480556,13.251389,8.3,4,1,1959,1959,Tony Brooks,1,1.0,False
+bahrain,Bahrain,Bahrain International Circuit,Race,clockwise,Sakhir,Bahrain,BHR,26.0325,50.510556,5.412,15,22,2004,2025,Lewis Hamilton,5,0.5,False
+baku,Baku,Baku City Circuit,Street,anti clockwise,Baku,Azerbaijan,AZE,40.3725,49.853333,6.003,20,10,2016,2026,Max Verstappen,2,0.4,True
+brands-hatch,Brands Hatch,Brands Hatch,Race,clockwise,Fawkham,United Kingdom,GBR,51.356667,0.2625,4.207,9,14,1964,1986,Niki Lauda,3,0.286,False
+bremgarten,Bremgarten,Circuit Bremgarten,Road,clockwise,Bern,Switzerland,CHE,46.95,7.410833,7.28,13,5,1950,1954,Juan Manuel Fangio,2,0.2,False
+buddh,Buddh,Buddh International Circuit,Race,clockwise,Greater Noida,India,IND,28.350556,77.535,5.125,16,3,2011,2013,Sebastian Vettel,3,1.0,False
+buenos-aires,Juan y Oscar Gálvez,Autódromo Juan y Oscar Gálvez,Race,clockwise,Buenos Aires,Argentina,ARG,-34.694272,-58.459347,4.259,19,20,1953,1998,Juan Manuel Fangio,4,0.35,False
+bugatti,Bugatti,Bugatti Circuit,Race,clockwise,Le Mans,France,FRA,47.937694,0.225611,4.185,14,1,1967,1967,Jack Brabham,1,0.0,False
+caesars-palace,Caesars Palace,Caesars Palace,Street,anti clockwise,Las Vegas,United States of America,USA,36.116944,-115.175,3.65,14,2,1981,1982,Michele Alboreto,1,0.0,False
+catalunya,Catalunya,Circuit de Barcelona-Catalunya,Race,clockwise,Montmeló,Spain,ESP,41.57,2.261111,4.657,14,36,1991,2026,Lewis Hamilton,7,0.694,True
+clermont-ferrand,Charade,Charade Circuit,Road,clockwise,Clermont-Ferrand,France,FRA,45.747222,3.038889,8.055,48,4,1965,1972,Jackie Stewart,2,0.5,False
+dallas,Fair Park,Fair Park,Street,anti clockwise,Dallas,United States of America,USA,32.781944,-96.765556,3.901,23,1,1984,1984,Keke Rosberg,1,0.0,False
+detroit,Detroit,Detroit Street Circuit,Street,anti clockwise,Detroit,United States of America,USA,42.32975,-83.040111,4.023,22,7,1982,1988,Ayrton Senna,3,0.429,False
+dijon,Dijon-Prenois,Dijon-Prenois,Race,clockwise,Dijon,France,FRA,47.3625,4.899167,3.801,12,6,1974,1984,Ronnie Peterson,1,0.333,False
+donington,Donington Park,Donington Park,Race,clockwise,Leicestershire,United Kingdom,GBR,52.829806,-1.379556,4.023,12,1,1993,1993,Ayrton Senna,1,0.0,False
+east-london,Prince George,Prince George Circuit,Race,clockwise,East London,South Africa,ZAF,-33.048611,27.873611,3.92,9,3,1962,1965,Jim Clark,2,0.667,False
+estoril,Estoril,Autódromo do Estoril,Race,clockwise,Estoril,Portugal,PRT,38.750833,-9.394167,4.36,13,13,1984,1996,Nigel Mansell,3,0.462,False
+fuji,Fuji,Fuji Speedway,Race,clockwise,Oyama,Japan,JPN,35.371667,138.926667,4.563,16,4,1976,2008,Mario Andretti,1,0.5,False
+hockenheimring,Hockenheimring,Hockenheimring,Race,clockwise,Hockenheim,Germany,DEU,49.327778,8.565833,4.574,17,37,1970,2019,Michael Schumacher,4,0.486,False
+hungaroring,Hungaroring,Hungaroring,Race,clockwise,Budapest,Hungary,HUN,47.582222,19.251111,4.381,14,41,1986,2026,Lewis Hamilton,8,0.415,True
+imola,Enzo e Dino Ferrari,Autodromo Internazionale Enzo e Dino Ferrari,Race,anti clockwise,Imola,Italy,ITA,44.341111,11.713333,4.909,19,32,1980,2025,Michael Schumacher,7,0.344,False
+indianapolis,Indianapolis,Indianapolis Motor Speedway,Race,clockwise,Indianapolis,United States of America,USA,39.798333,-86.232778,4.192,13,19,1950,2007,Michael Schumacher,5,0.263,False
+interlagos,José Carlos Pace,Autódromo José Carlos Pace,Race,anti clockwise,São Paulo,Brazil,BRA,-23.701111,-46.697222,4.309,15,43,1973,2026,Michael Schumacher,4,0.465,True
+istanbul,İstanbul Park,TOSFED İstanbul Park,Race,anti clockwise,Istanbul,Turkey,TUR,40.951667,29.405,5.338,14,9,2005,2021,Felipe Massa,3,0.667,False
+jacarepagua,Nelson Piquet,Autódromo Internacional Nelson Piquet,Race,anti clockwise,Rio de Janeiro,Brazil,BRA,-22.975556,-43.395,5.031,11,10,1978,1989,Alain Prost,5,0.1,False
+jarama,Jarama,Circuito de Madrid Jarama - RACE,Race,clockwise,Madrid,Spain,ESP,40.617111,-3.585583,3.314,14,9,1968,1981,Mario Andretti,2,0.444,False
+jeddah,Jeddah,Jeddah Corniche Circuit,Street,anti clockwise,Jeddah,Saudi Arabia,SAU,21.543333,39.172778,6.174,27,5,2021,2025,Max Verstappen,2,0.6,False
+jerez,Jerez,Circuito de Jerez,Race,clockwise,Jerez de la Frontera,Spain,ESP,36.708333,-6.034167,4.428,15,7,1986,1997,Alain Prost,2,0.429,False
+kyalami,Kyalami,Kyalami Racing Circuit,Race,anti clockwise,Midrand,South Africa,ZAF,-25.998611,28.068889,4.261,13,20,1967,1993,Niki Lauda,3,0.2,False
+las-vegas,Las Vegas,Las Vegas Street Circuit,Street,anti clockwise,Las Vegas,United States of America,USA,36.175,-115.136389,6.201,17,3,2023,2025,Max Verstappen,2,0.333,True
+long-beach,Long Beach,Long Beach,Street,clockwise,Long Beach,United States of America,USA,33.766389,-118.192778,3.275,18,8,1976,1983,Gilles Villeneuve,1,0.5,False
+lusail,Lusail,Lusail International Circuit,Race,clockwise,Lusail,Qatar,QAT,25.49,51.454167,5.419,16,4,2021,2025,Max Verstappen,3,0.5,True
+madring,Madring,Circuito de Madring,Street,clockwise,Madrid,Spain,ESP,40.465278,-3.615278,5.416,22,1,2026,2026,Kimi Antonelli,1,0.0,True
+magny-cours,Magny-Cours,Circuit de Nevers Magny-Cours,Race,clockwise,Nevers,France,FRA,46.863242,3.164228,4.411,17,18,1991,2008,Michael Schumacher,8,0.294,False
+marina-bay,Marina Bay,Marina Bay Street Circuit,Street,anti clockwise,Singapore,Singapore,SGP,1.291531,103.86385,4.927,19,17,2008,2026,Sebastian Vettel,5,0.706,True
+melbourne,Albert Park,Albert Park Circuit,Street,clockwise,Melbourne,Australia,AUS,-37.849722,144.968333,5.278,14,29,1996,2026,Michael Schumacher,4,0.448,True
+mexico-city,Hermanos Rodríguez,Autódromo Hermanos Rodríguez,Race,clockwise,Mexico City,Mexico,MEX,19.404197,-99.088747,4.304,17,26,1963,2026,Max Verstappen,6,0.462,True
+miami,Miami,Miami International Autodrome,Street,anti clockwise,Miami Gardens,United States of America,USA,25.958056,-80.238889,5.412,19,5,2022,2026,Max Verstappen,2,0.2,True
+monaco,Monaco,Circuit de Monaco,Street,clockwise,Monte Carlo,Monaco,MCO,43.734722,7.420556,3.337,19,72,1950,2026,Ayrton Senna,6,0.479,True
+monsanto,Monsanto,Circuito de Monsanto,Street,clockwise,Lisbon,Portugal,PRT,38.719722,-9.203056,5.44,9,1,1959,1959,Stirling Moss,1,1.0,False
+mont-tremblant,Mont-Tremblant,Circuit Mont-Tremblant,Race,clockwise,Mont-Tremblant,Canada,CAN,46.187707,-74.609936,4.265,15,2,1968,1970,Jacky Ickx,1,0.0,False
+montjuic,Montjuïc,Circuito de Montjuïc,Street,anti clockwise,Barcelona,Spain,ESP,41.366389,2.151667,3.791,12,4,1969,1975,Jackie Stewart,2,0.0,False
+montreal,Gilles Villeneuve,Circuit Gilles Villeneuve,Street,clockwise,Montreal,Canada,CAN,45.500578,-73.522461,4.361,14,45,1978,2026,Lewis Hamilton,7,0.489,True
+monza,Monza,Autodromo Nazionale Monza,Race,clockwise,Monza,Italy,ITA,45.620556,9.289444,5.793,11,76,1950,2026,Michael Schumacher,5,0.342,True
+mosport,Mosport,Canadian Tire Motorsport Park,Race,clockwise,Bowmanville,Canada,CAN,44.05,-78.677778,3.957,10,8,1967,1977,Jackie Stewart,2,0.5,False
+mugello,Mugello,Autodromo Internazionale del Mugello,Race,clockwise,Scarperia e San Piero,Italy,ITA,43.9975,11.371944,5.245,15,1,2020,2020,Lewis Hamilton,1,1.0,False
+nivelles,Nivelles-Baulers,Nivelles-Baulers,Race,clockwise,Nivelles,Belgium,BEL,50.621111,4.326944,3.724,7,2,1972,1974,Emerson Fittipaldi,2,0.5,False
+nurburgring,Nürburgring,Nürburgring,Race,clockwise,Nürburg,Germany,DEU,50.335556,6.9475,5.148,15,41,1951,2020,Michael Schumacher,5,0.366,False
+paul-ricard,Paul Ricard,Circuit Paul Ricard,Race,clockwise,Le Castellet,France,FRA,43.250556,5.791667,5.842,15,18,1971,2022,Alain Prost,4,0.611,False
+pedralbes,Pedralbes,Pedralbes Circuit,Street,clockwise,Barcelona,Spain,ESP,41.390278,2.116667,6.316,6,2,1951,1954,Mike Hawthorn,1,0.0,False
+pescara,Pescara,Pescara Circuit,Road,clockwise,Pescara,Italy,ITA,42.475,14.150833,25.579,24,1,1957,1957,Stirling Moss,1,0.0,False
+phoenix,Phoenix,Phoenix Street Circuit,Street,anti clockwise,Phoenix,United States of America,USA,33.447917,-112.074583,3.721,15,3,1989,1991,Ayrton Senna,2,0.333,False
+portimao,Portimão,Algarve International Circuit,Race,clockwise,Portimão,Portugal,PRT,37.221944,-8.629444,4.653,15,2,2020,2021,Lewis Hamilton,2,0.5,False
+porto,Boavista,Circuito da Boavista,Street,anti clockwise,Porto,Portugal,PRT,41.170472,-8.67325,7.406,19,2,1958,1960,Stirling Moss,1,0.5,False
+reims,Reims-Gueux,Reims-Gueux,Road,clockwise,Reims,France,FRA,49.254075,3.930561,8.302,7,11,1950,1966,Juan Manuel Fangio,3,0.545,False
+riverside,Riverside,Riverside International Raceway,Race,clockwise,Riverside,United States of America,USA,33.937,-117.272556,5.271,9,1,1960,1960,Stirling Moss,1,1.0,False
+rouen,Rouen-Les-Essarts,Rouen-Les-Essarts,Road,clockwise,Rouen,France,FRA,49.330639,1.004583,6.542,12,5,1952,1968,Dan Gurney,2,0.4,False
+sebring,Sebring,Sebring International Raceway,Road,clockwise,Sebring,United States of America,USA,27.454741,-81.348267,8.36,17,1,1959,1959,Bruce McLaren,1,0.0,False
+sepang,Sepang,Sepang International Circuit,Race,clockwise,Sepang,Malaysia,MYS,2.760556,101.7375,5.543,15,20,1999,2026,Sebastian Vettel,4,0.5,True
+shanghai,Shanghai,Shanghai International Circuit,Race,clockwise,Shanghai,China,CHN,31.338889,121.219722,5.451,16,19,2004,2026,Lewis Hamilton,6,0.632,True
+silverstone,Silverstone,Silverstone Circuit,Race,clockwise,Silverstone,United Kingdom,GBR,52.078611,-1.016944,5.891,18,61,1950,2026,Lewis Hamilton,9,0.361,True
+sirius,Sirius,Sirius Autodrom,Road,clockwise,Sirius,Russia,RUS,43.410278,39.968271,5.848,18,8,2014,2021,Lewis Hamilton,5,0.25,False
+spa-francorchamps,Spa-Francorchamps,Circuit de Spa-Francorchamps,Race,clockwise,Spa,Belgium,BEL,50.437222,5.971389,7.004,19,59,1950,2026,Michael Schumacher,6,0.373,True
+spielberg,Red Bull Ring,Red Bull Ring,Race,clockwise,Spielberg,Austria,AUT,47.219722,14.764722,4.326,10,40,1970,2026,Max Verstappen,5,0.4,True
+suzuka,Suzuka,Suzuka Circuit,Race,clockwise,Suzuka,Japan,JPN,34.843056,136.540556,5.807,18,36,1987,2026,Michael Schumacher,6,0.556,True
+valencia,Valencia,Valencia Street Circuit,Street,clockwise,Valencia,Spain,ESP,39.458778,-0.325556,5.419,25,5,2008,2012,Sebastian Vettel,2,0.6,False
+watkins-glen,Watkins Glen,Watkins Glen International,Race,clockwise,Watkins Glen,United States of America,USA,42.336944,-76.927222,5.435,11,20,1961,1980,Graham Hill,3,0.5,False
+yas-marina,Yas Marina,Yas Marina Circuit,Race,anti clockwise,Abu Dhabi,United Arab Emirates,ARE,24.467222,54.603056,5.281,16,17,2009,2025,Lewis Hamilton,5,0.706,True
+yeongam,Korea,Korea International Circuit,Race,anti clockwise,Yeongam,South Korea,KOR,34.733333,126.416667,5.615,18,4,2010,2013,Sebastian Vettel,3,0.25,False
+zandvoort,Zandvoort,Circuit Zandvoort,Race,clockwise,Zandvoort,Netherlands,NLD,52.388819,4.540922,4.259,14,36,1952,2026,Jim Clark,4,0.5,True
+zeltweg,Zeltweg,Zeltweg,Road,clockwise,Zeltweg,Austria,AUT,47.202222,14.742222,3.186,4,1,1964,1964,Lorenzo Bandini,1,0.0,False
+zolder,Zolder,Circuit Zolder,Race,clockwise,Heusden-Zolder,Belgium,BEL,50.988889,5.255556,4.262,15,10,1973,1984,Niki Lauda,2,0.5,False

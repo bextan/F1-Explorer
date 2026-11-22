@@ -30,7 +30,8 @@ def jolpica(name):
 
 
 # ============================================================ F1DB base tables
-countries = f1db("countries").set_index("id")["name"]
+country_table = f1db("countries")
+countries = country_table.set_index("id")["name"]
 gp_table = f1db("grands-prix").set_index("id")
 gps = gp_table["name"]
 drivers = f1db("drivers")
@@ -42,6 +43,7 @@ tyres = f1db("tyre-manufacturers").set_index("id")["name"]
 circuits = f1db("circuits")
 circuits = circuits.rename(columns={"fullName": "full_name", "placeName": "place"})
 circuits["country"] = circuits["countryId"].map(countries)
+circuits["country_iso3"] = circuits["countryId"].map(country_table.set_index("id")["alpha3Code"])
 circuits["type"] = circuits["type"].str.title()          # RACE -> Race
 circuits["direction"] = circuits["direction"].str.replace("_", " ").str.lower()
 
@@ -244,7 +246,7 @@ summary = summary.merge(pole.groupby("circuit_id")["is_win"].mean().rename("pole
 this_year = races["year"].max()
 circuits = circuits.merge(summary, left_on="id", right_on="circuit_id")
 circuits["on_calendar"] = circuits["id"].isin(races.loc[races["year"] == this_year, "circuit_id"])
-circuits = circuits[["id", "name", "full_name", "type", "direction", "place", "country", "latitude",
+circuits = circuits[["id", "name", "full_name", "type", "direction", "place", "country", "country_iso3", "latitude",
                      "longitude", "length", "turns", "races", "first_year", "last_year",
                      "top_winner", "top_winner_wins", "pole_win_rate", "on_calendar"]]
 
@@ -280,8 +282,11 @@ career = career[["id", "name", "abbreviation", "nationality", "dateOfBirth", "st
                  "avg_finish", "dnf_rate", "colour"]].rename(columns={"id": "driver_id", "abbreviation": "abbr",
                                                                     "dateOfBirth": "born"})
 
+# every country of the world (ISO-3 code for the map), also those that never hosted a race
+world = country_table[["alpha3Code", "name"]].dropna().rename(columns={"alpha3Code": "iso3"})
+
 # ============================================================ save
-tables = {"drivers": career, "circuits": circuits, "races": races, "results": results, "laps": laps, "pit_stops": pits,
+tables = {"countries": world, "drivers": career, "circuits": circuits, "races": races, "results": results, "laps": laps, "pit_stops": pits,
           "standings": standings, "stints": stints, "tracks": tracks}
 for name, table in tables.items():
     table.to_csv(OUT / f"{name}.csv", index=False)

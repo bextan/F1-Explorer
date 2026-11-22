@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pandas as pd
-from dash import ALL, Dash, Input, Output, State, ctx, dcc, html, no_update
+from dash import ALL, ClientsideFunction, Dash, Input, Output, State, ctx, dcc, html, no_update
 
 import charts
 
@@ -16,6 +16,7 @@ standings = pd.read_csv(D + "standings.csv")
 stints = pd.read_csv(D + "stints.csv")
 tracks = pd.read_csv(D + "tracks.csv")
 drivers = pd.read_csv(D + "drivers.csv")
+countries = pd.read_csv(D + "countries.csv", keep_default_na=False)  # keep "NA" (Namibia) as text
 
 results = results.merge(races[["race_id", "circuit_id"]], on="race_id")
 YEAR_MIN, YEAR_MAX = int(races["year"].min()), int(races["year"].max())
@@ -68,9 +69,13 @@ circuits_tab = html.Div([
     html.Div(id="circuits-body", className="circuits-body", children=[
         html.Div([
             html.Div(id="map-hint", className="map-hint"),
-            dcc.Graph(id="map", config=GRAPH_CONFIG, responsive=True, className="map-graph"),
+            dcc.Graph(id="map", config=GRAPH_CONFIG, responsive=True, className="map-graph",
+                      clear_on_unhover=True),
+            html.Div([html.Button("×", id="country-close", className="x-btn", title="Close"),
+                      html.Div(id="country-content", className="cp-content")],
+                     id="country-panel", className="country-panel hidden"),
             html.Div(id="map-list", className="map-list"),
-        ], className="map-pane"),
+        ], id="map-pane", className="map-pane"),
 
         html.Div([
             html.Div([html.Button("× Back to map", id="close", className="close-btn"),
@@ -143,6 +148,8 @@ PAGES = {"circuits": circuits_tab, "seasons": seasons_tab, "drivers": drivers_ta
 
 app.layout = html.Div([
     dcc.Store(id="selection", data=None),
+    dcc.Store(id="country", data=None),    # ISO-3 code of the clicked country
+    dcc.Store(id="map-hover"),             # dummy output of the clientside hover highlight
     html.Div([html.H1(["F1 ", html.Span("EXPLORER")]),
               html.P(f"Every Formula 1 Grand Prix, {YEAR_MIN}–{YEAR_MAX}")], className="header"),
     html.Div([
@@ -179,32 +186,108 @@ def filtered_circuits(search, types, years, calendar):
     return c
 
 
+def filtered_races(c, years):
+    """Races in the season range held at the circuits in `c`, with the circuit's name and country."""
+    r = races[races["year"].between(*years)]
+    return r.merge(c[["id", "name", "country_iso3"]].rename(columns={"id": "circuit_id", "name": "circuit"}),
+                   on="circuit_id")
+
+
+# races per country over all seasons, to tell "never hosted" apart from "filtered out"
+ALL_TIME = races.merge(circuits[["id", "country_iso3"]], left_on="circuit_id", right_on="id") \
+    .groupby("country_iso3").size()
+
+
+def country_stats(c, years):
+    """One row per country of the world: races and circuits under the current filters."""
+    r = filtered_races(c, years)
+    g = r.groupby("country_iso3").agg(races=("race_id", "size"), circuits=("circuit_id", "nunique"),
+                                       first=("year", "min"), last=("year", "max"))
+    out = countries.merge(g, left_on="iso3", right_index=True, how="left")
+    cols = ["races", "circuits", "first", "last"]
+    out[cols] = out[cols].fillna(0).astype(int)
+    out["ever"] = out["iso3"].map(ALL_TIME).fillna(0).astype(int)
+    return out
+
+
 @app.callback(
     Output("map", "figure"), Output("map-hint", "children"), Output("map-list", "children"),
     Input("search", "value"), Input("types", "value"), Input("years", "value"), Input("calendar", "value"),
-    Input("selection", "data"),
+    Input("selection", "data"), Input("country", "data"),
 )
-def update_map(search, types, years, calendar, selection):
+def update_map(search, types, years, calendar, selection, country):
     c = filtered_circuits(search, types, years, calendar)
     selected = None
     if selection:
         selected = circuits.set_index("id").loc[selection["circuit"]].copy()
         selected["id"] = selection["circuit"]
-    hint = f"{len(c)} circuits · click one to open it" if selection is None else f"{len(c)} circuits match"
+    hint = (f"{len(c)} circuits · click a circuit to open it, or a country to list its races"
+            if selection is None else f"{len(c)} circuits match")
     items = [html.Div([html.Span(r.name), html.Small(f"{r.races_period} races")],
                       id={"type": "circuit-item", "id": r.id}, n_clicks=0,
                       className="item active" if selection and r.id == selection["circuit"] else "item")
              for r in c.sort_values("races_period", ascending=False).itertuples()]
-    return charts.circuit_map(c, selected), hint, items
+    return charts.circuit_map(c, selected, country_stats(c, years), country), hint, items
+
+
+app.clientside_callback(ClientsideFunction("map", "hover"), Output("map-hover", "data"), Input("map", "hoverData"))
+
+
+@app.callback(
+    Output("country", "data"),
+    Input("map", "clickData"), Input("country-close", "n_clicks"),
+    prevent_initial_call=True,
+)
+def select_country(map_click, close):
+    if ctx.triggered_id == "country-close":
+        return None if close else no_update
+    point = (map_click or {}).get("points", [{}])[0]
+    # only country shapes have a "location"; circuit bubbles are handled by select_circuit
+    return point.get("location") or no_update
+
+
+@app.callback(
+    Output("country-content", "children"), Output("country-panel", "className"), Output("map-pane", "className"),
+    Input("country", "data"), Input("search", "value"), Input("types", "value"), Input("years", "value"),
+    Input("calendar", "value"), Input("race", "value"),
+)
+def country_panel(iso3, search, types, years, calendar, race_id):
+    if not iso3:
+        return [], "country-panel hidden", "map-pane"
+    name = countries.set_index("iso3")["name"].get(iso3, iso3)
+    r = filtered_races(filtered_circuits(search, types, years, calendar), years)
+    r = r[r["country_iso3"] == iso3].sort_values("date", ascending=False)
+
+    if len(r):
+        n_circ = r["circuit_id"].nunique()
+        sub = (f"{len(r)} races · {n_circ} circuit{'s' if n_circ > 1 else ''} · "
+               f"{r['year'].min()}–{r['year'].max()} · click a race to open it")
+        body = [html.Div([
+                    html.Span(str(x.year), className="yr"),
+                    html.Div([html.Div(x.gp),
+                              html.Small(x.circuit + (f" · won by {x.winner}" if isinstance(x.winner, str) else ""))]),
+                ], id={"type": "country-race", "id": int(x.race_id)}, n_clicks=0,
+                    className="race-item active" if x.race_id == race_id else "race-item")
+                for x in r.itertuples()]
+    else:
+        ever = int(ALL_TIME.get(iso3, 0))
+        sub = ""
+        body = html.P(f"No races in {name} with the current filters ({ever} all-time)." if ever else
+                      f"No Formula 1 Grand Prix has ever been held in {name}.", className="empty")
+
+    content = [html.Div([html.H3(name), html.Small(sub)], className="cp-head"),
+               html.Div(body, className="cp-list")]
+    return content, "country-panel", "map-pane has-country"
 
 
 @app.callback(
     Output("selection", "data"), Output("tabs", "value"),
     Input("map", "clickData"), Input({"type": "circuit-item", "id": ALL}, "n_clicks"),
+    Input({"type": "country-race", "id": ALL}, "n_clicks"),
     Input("matrix", "clickData"), Input("close", "n_clicks"),
     prevent_initial_call=True,
 )
-def select_circuit(map_click, item_clicks, matrix_click, close):
+def select_circuit(map_click, item_clicks, race_clicks, matrix_click, close):
     trigger = ctx.triggered_id
     if trigger == "close":
         return None, no_update
@@ -217,10 +300,12 @@ def select_circuit(map_click, item_clicks, matrix_click, close):
         race_id = int(matrix_click["points"][0]["customdata"])
         circuit = races.loc[races["race_id"] == race_id, "circuit_id"].iloc[0]
         return {"circuit": circuit, "race": race_id}, "circuits"
-    if isinstance(trigger, dict) and any(item_clicks):
-        # list items re-render with n_clicks=0, only react to a real click
-        if ctx.triggered[0]["value"]:
-            return {"circuit": trigger["id"], "race": None}, no_update
+    # list items re-render with n_clicks=0, only react to a real click
+    if isinstance(trigger, dict) and ctx.triggered[0]["value"]:
+        if trigger["type"] == "country-race":
+            circuit = races.loc[races["race_id"] == trigger["id"], "circuit_id"].iloc[0]
+            return {"circuit": circuit, "race": trigger["id"]}, no_update
+        return {"circuit": trigger["id"], "race": None}, no_update
     return no_update, no_update
 
 

@@ -48,8 +48,38 @@ def teammate_dash(df, team_col="team"):
 
 
 # ===================================================================== map
-def circuit_map(circuits, selected=None):
+def _country_hover(r):
+    if r.races > 0:
+        years = f"{r.first}" if r.first == r.last else f"{r.first}–{r.last}"
+        circ = "circuit" if r.circuits == 1 else "circuits"
+        return (f"<b>{r.name}</b><br>{r.races} races at {r.circuits} {circ} ({years})"
+                "<br><i>click to list the races</i>")
+    if r.ever > 0:
+        return f"<b>{r.name}</b><br>no races with the current filters<br>({r.ever} races all-time)"
+    return f"<b>{r.name}</b><br>never hosted a Formula 1 race"
+
+
+def circuit_map(circuits, selected=None, countries=None, country=None):
+    """World map / globe. `countries` has one row per country (iso3, name, races, circuits, first, last, ever)
+    and is drawn as a hoverable, clickable layer under the circuit bubbles. `country` is the clicked ISO-3 code."""
     fig = go.Figure()
+    if countries is not None:
+        hosted = (countries["races"] > 0).astype(int)
+        fig.add_choropleth(
+            locations=countries["iso3"], z=hosted, zmin=0, zmax=1, name="countries",
+            colorscale=[[0, "#262634"], [1, "#34344c"]], showscale=False,
+            marker=dict(line=dict(color="#4a4a62", width=0.5)),
+            text=[_country_hover(r) for r in countries.itertuples()], hovertemplate="%{text}<extra></extra>",
+        )
+        # filled from the browser on hover (assets/map_hover.js), so hovering needs no server round trip
+        fig.add_choropleth(locations=[], z=[], name="hover-country", zmin=0, zmax=1, showscale=False,
+                           colorscale=[[0, "#55557a"], [1, "#55557a"]], hoverinfo="skip",
+                           marker=dict(line=dict(color="white", width=1.2)))
+        if country:
+            fig.add_choropleth(locations=[country], z=[1], name="selected-country", zmin=0, zmax=1,
+                               showscale=False, colorscale=[[0, "rgba(225,6,0,0.4)"], [1, "rgba(225,6,0,0.4)"]],
+                               hoverinfo="skip", marker=dict(line=dict(color=RED, width=1.8)))
+
     for kind, g in circuits.groupby("type"):
         fig.add_scattergeo(
             lat=g["latitude"], lon=g["longitude"], name=kind,

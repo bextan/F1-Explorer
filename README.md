@@ -68,6 +68,7 @@ Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it
 | `standings.csv` | 21 660 | championship standings after each round |
 | `pit_stops.csv` | 22 755 | pit stops (1994+) |
 | `stints.csv` | 5 256 | tyre stints (2023+) |
+| `countries.csv` | 249 | every country with its ISO-3 code, for the clickable country layer |
 | `tracks.csv` | 64 000 | 400 points × 160 track layouts |
 
 ## The dashboard
@@ -75,6 +76,8 @@ Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it
 **Circuits**
 - A filter bar (search, circuit type, current calendar only, season range) controls a world map of all circuits.
   Bubble size is the number of races in the selected period, and colour is the circuit type.
+- Every country is hoverable and clickable: hovering highlights it and shows how many races it hosted (or that it never
+  hosted one, e.g. Kazakhstan). Clicking it opens a list of its races, and picking a race opens it on the circuit page.
 - Clicking a circuit shrinks the map into a small globe turned towards it. A clickable list of the filtered circuits appears
   below the globe, and the circuit page opens beside it:
   - circuit facts and a race picker;
