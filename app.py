@@ -19,6 +19,10 @@ tracks = pd.read_csv(D + "tracks.csv")
 drivers = pd.read_csv(D + "drivers.csv")
 countries = pd.read_csv(D + "countries.csv", keep_default_na=False)  # keep "NA" (Namibia) as text
 
+# plotly's world map draws a few disputed areas as separate shapes; without them they'd be holes in the land
+DISPUTED = ["XAP", "XHT", "XBT", "XAC", "XIT", "XJK"]
+countries = pd.concat([countries, pd.DataFrame({"iso3": DISPUTED, "name": "Disputed area"})], ignore_index=True)
+
 results = results.merge(races[["race_id", "circuit_id"]], on="race_id")
 YEAR_MIN, YEAR_MAX = int(races["year"].min()), int(races["year"].max())
 LAST_FULL_SEASON = int(standings.groupby("year")["round"].max().pipe(

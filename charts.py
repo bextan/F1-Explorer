@@ -71,10 +71,8 @@ def circuit_map(circuits, selected=None, countries=None, country=None):
             marker=dict(line=dict(color="#4a4a62", width=0.5)),
             text=[_country_hover(r) for r in countries.itertuples()], hovertemplate="%{text}<extra></extra>",
         )
-        # filled from the browser on hover (assets/map_hover.js), so hovering needs no server round trip
-        fig.add_choropleth(locations=[], z=[], name="hover-country", zmin=0, zmax=1, showscale=False,
-                           colorscale=[[0, "#55557a"], [1, "#55557a"]], hoverinfo="skip",
-                           marker=dict(line=dict(color="white", width=1.2)))
+        # the hovered country is highlighted in the browser by styling its shape (assets/map_hover.js),
+        # so hovering never redraws the map
         if country:
             fig.add_choropleth(locations=[country], z=[1], name="selected-country", zmin=0, zmax=1,
                                showscale=False, colorscale=[[0, "rgba(225,6,0,0.4)"], [1, "rgba(225,6,0,0.4)"]],
@@ -91,8 +89,12 @@ def circuit_map(circuits, selected=None, countries=None, country=None):
                           "<br>used %{customdata[5]}–%{customdata[6]}<extra></extra>",
         )
 
-    geo = dict(showland=True, landcolor="#262634", showcountries=True, countrycolor="#3a3a50",
-               showocean=True, oceancolor=BG, showlakes=False, coastlinecolor="#3a3a50",
+    # the country layer already draws land and borders, so plotly's own land/borders/coastline layers are
+    # switched off: they doubled the work on every frame while dragging the globe
+    has_countries = countries is not None
+    geo = dict(showland=not has_countries, landcolor="#262634", showcountries=not has_countries,
+               countrycolor="#3a3a50", showcoastlines=not has_countries, coastlinecolor="#3a3a50",
+               showocean=True, oceancolor=BG, showlakes=False,
                bgcolor="rgba(0,0,0,0)", showframe=False, projection_type="natural earth", fitbounds=False)
 
     if selected is not None:

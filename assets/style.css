@@ -101,7 +101,7 @@ body {
 
 .map-pane {
     flex: 0 0 100%;
-    transition: flex-basis 0.6s ease;
+    /* no width/height animation: every animation frame made plotly resize and redraw the whole globe */
     background: var(--panel);
     border-radius: 10px;
     padding: 8px;
@@ -112,7 +112,7 @@ body {
     flex: 0 0 0%;
     opacity: 0;
     overflow: hidden;
-    transition: flex-basis 0.6s ease, opacity 0.4s ease 0.3s;
+    transition: opacity 0.4s ease;
     max-height: 0;
 }
 
@@ -177,7 +177,7 @@ body {
 .page { position: relative; }
 .tab-page.hidden { position: absolute; left: -10000px; top: 0; width: calc(100% - 56px); height: 0; overflow: hidden; visibility: hidden; }
 
-.map-graph { height: 600px !important; transition: height 0.6s ease; }
+.map-graph { height: 600px !important; }
 .circuits-body.open .map-graph { height: 320px !important; }
 .head-card { position: relative; }
 .head-card .close-btn { position: absolute; right: 18px; top: 14px; z-index: 2; }
