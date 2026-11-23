@@ -475,7 +475,9 @@ def career_seasons(res, champ, unit="races"):
     fig.update_annotations(font=dict(size=12, color=MUTED), x=0, xanchor="left")
 
     # ---- top: championship position
-    c = champ.dropna(subset=["position"]).set_index("year").reindex(years)
+    # one row per season (best position), in case the standings list a team twice in a year
+    c = champ.dropna(subset=["position"]).sort_values("position").drop_duplicates("year") \
+        .set_index("year").reindex(years)
     has = c["position"].notna()
     if has.any():
         pos = c["position"]

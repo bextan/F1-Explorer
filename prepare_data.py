@@ -152,6 +152,9 @@ cs = f1db("races-constructor-standings")
 cs = cs[cs["round"] == cs.groupby("year")["round"].transform("max")]   # standings after the last round
 team_standings = cs[["year", "constructorId", "positionNumber", "points", "championshipWon"]]
 team_standings.columns = ["year", "team_id", "position", "points", "champion"]
+# the championship was per chassis + engine, so a team with two engines in a season (McLaren-Ford and
+# McLaren-Serenissima in 1966) has two rows: keep the team's best one
+team_standings = team_standings.sort_values(["year", "position"]).drop_duplicates(["year", "team_id"])
 
 # ============================================================ OpenF1 (2023+)
 of1 = RAW / "openf1"
