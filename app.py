@@ -163,6 +163,9 @@ eras_tab = html.Div([
 PAGES = {"circuits": circuits_tab, "seasons": seasons_tab, "drivers": drivers_tab, "eras": eras_tab}
 
 # ------------------------------------------------------------------ layout: driver page (opened over any tab)
+SEASONS_NOTE = ("Gold, silver and bronze dots are championship top-three finishes. The bars show how every race "
+                "of the season ended; hover a season for a full summary.")
+
 driver_page = html.Div([
     html.Div([html.Button("← Back", id="driver-back", className="close-btn"),
               html.Div(id="driver-head")], className="card head-card"),
@@ -178,7 +181,8 @@ driver_page = html.Div([
                  className="card"),
     ], className="driver-row"),
     html.Div([
-        html.Div([html.H3("Season by season"), graph("driver-seasons")], className="card"),
+        html.Div([html.H3("Season by season"), graph("driver-seasons"), html.P(SEASONS_NOTE, className="note")],
+                 className="card"),
         html.Div([html.H3("Teams"), html.Div(id="driver-teams")], className="card"),
     ], className="driver-row-2"),
 ])
@@ -200,7 +204,8 @@ team_page = html.Div([
                   html.Div(id="team-races", className="table-scroll dr-scroll")], className="card"),
     ], className="driver-row"),
     html.Div([
-        html.Div([html.H3("Season by season"), graph("team-seasons")], className="card"),
+        html.Div([html.H3("Season by season"), graph("team-seasons"),
+                  html.P(SEASONS_NOTE + " Each car counts separately.", className="note")], className="card"),
         html.Div([html.H3("Drivers"), html.Div(id="team-drivers", className="table-scroll dr-scroll")],
                  className="card"),
     ], className="driver-row-2"),
@@ -799,7 +804,7 @@ def show_team(tid):
     seasons = sorted(res["year"].unique(), reverse=True)
     options = [{"label": "All seasons", "value": "all"}] + [{"label": str(y), "value": int(y)} for y in seasons]
     return head, charts.career_map(career_circuits(res)), \
-        charts.career_seasons(res, champ, ytitle="Car entries"), driver_list, options, "all"
+        charts.career_seasons(res, champ, unit="car results"), driver_list, options, "all"
 
 
 @app.callback(Output("team-races-data", "data"), Input("team", "data"), Input("team-season", "value"))
