@@ -18,7 +18,6 @@ body {
     font-family: "Titillium Web", "Segoe UI", sans-serif;
 }
 
-/* ---------- header ---------- */
 .header {
     display: flex;
     align-items: baseline;
@@ -33,7 +32,6 @@ body {
 
 .page { padding: 0 28px 40px; }
 
-/* ---------- tabs ---------- */
 .tabs { border-bottom: 1px solid var(--line) !important; margin-bottom: 18px; }
 .tab {
     background: transparent !important;
@@ -46,7 +44,6 @@ body {
 }
 .tab--selected { color: var(--text) !important; border-bottom: 3px solid var(--red) !important; }
 
-/* ---------- filter bar ---------- */
 .filters {
     display: flex;
     flex-wrap: wrap;
@@ -75,7 +72,6 @@ body {
 .checks label { margin-right: 14px; cursor: pointer; }
 .checks input { accent-color: var(--red); margin-right: 5px; }
 
-/* Dash 4 components are themed through these variables */
 :root {
     --Dash-Fill-Interactive-Strong: #e10600;
     --Dash-Fill-Interactive-Weak: #2a2a3a;
@@ -96,12 +92,11 @@ body {
 .dash-options-list-option-text { color: var(--text); }
 .checks .dash-options-list-option { margin-right: 14px; }
 
-/* ---------- circuits: map + detail ---------- */
 .circuits-body { display: flex; gap: 18px; align-items: flex-start; }
 
 .map-pane {
     flex: 0 0 100%;
-    /* no width/height animation: every animation frame made plotly resize and redraw the whole globe */
+    /* no width/height transition: every frame made plotly redraw the whole globe */
     background: var(--panel);
     border-radius: 10px;
     padding: 8px;
@@ -128,7 +123,6 @@ body {
 .map-list .item small { color: var(--muted); }
 .map-list .item.active small { color: #fff; }
 
-/* ---------- detail ---------- */
 .card { background: var(--panel); border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; }
 .card h3 { margin: 0 0 8px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
 .card .note { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
@@ -147,13 +141,12 @@ body {
 .stat .v { font-size: 22px; font-weight: 700; }
 .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; }
 
-.race-row { display: grid; grid-template-columns: minmax(530px, 1fr) 1.3fr; gap: 16px; }  /* room for the 8 labelled result columns */
+.race-row { display: grid; grid-template-columns: minmax(530px, 1fr) 1.3fr; gap: 16px; }
 @media (max-width: 1300px) { .race-row { grid-template-columns: 1fr; } }
 
 .weather { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); margin-top: 6px; font-size: 14px; }
 .weather b { color: var(--text); }
 
-/* classification table */
 .classification { width: 100%; border-collapse: collapse; font-size: 14px; }
 .classification td { padding: 4px 5px; border-bottom: 1px solid #262636; white-space: nowrap; }
 .classification tr:hover td { background: var(--panel-2); }
@@ -172,8 +165,7 @@ body {
 .footer { color: var(--muted); font-size: 13px; padding: 20px 28px; border-top: 1px solid var(--line); }
 .footer a { color: var(--text); }
 
-/* pages: hidden pages are moved off-screen instead of display:none,
-   so plotly still knows their real width */
+/* hidden pages are moved off-screen instead of display:none so plotly still knows their width */
 .page { position: relative; }
 .tab-page.hidden { position: absolute; left: -10000px; top: 0; width: calc(100% - 56px); height: 0; overflow: hidden; visibility: hidden; }
 
@@ -183,7 +175,6 @@ body {
 .head-card .close-btn { position: absolute; right: 18px; top: 14px; z-index: 2; }
 .map-graph .js-plotly-plot { height: 100% !important; }
 
-/* ---------- country panel (click a country on the map) ---------- */
 .country-panel.hidden { display: none !important; }
 .country-panel {
     position: absolute; top: 70px; right: 16px; width: 360px; max-height: 520px;
@@ -211,12 +202,10 @@ body {
 .race-item small { color: var(--muted); }
 .race-item.active small { color: #fff; }
 
-/* ---------- driver search (header) ---------- */
 .header .driver-search { margin-left: auto; width: 340px; align-self: center; }
 .driver-link { cursor: pointer; }
 .driver-link:hover { color: var(--red); text-decoration: underline; }
 
-/* ---------- driver page ---------- */
 .driver-head { display: flex; gap: 20px; align-items: flex-start; }
 .driver-head-text { flex: 1; min-width: 0; }
 .driver-photo { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; flex: none;
@@ -244,14 +233,12 @@ body {
 .team-item .team { color: var(--muted); font-size: 13px; }
 .team-item .right { margin-left: auto; text-align: right; }
 
-/* ---------- team page ---------- */
 .team-badge { border-radius: 14px; font-size: 26px; }
 .card-title-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
 .card-title-row h3 { margin: 0; }
 .season-pick { width: 150px; }
 .dr-race .team .win, .dr-race .team .pod { font-size: 12px; }
 
-/* ---------- table headers (column names stay visible while a long list scrolls) ---------- */
 .classification th {
     position: sticky; top: 0; z-index: 1;
     background: var(--panel); color: var(--muted);

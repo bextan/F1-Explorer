@@ -4,7 +4,7 @@ __pycache__/
 .venv/
 venv/
 
-# raw downloads are big, run download_data.py to get them
+# raw downloads are big, run python -m pipeline.download to get them
 data/raw/
 
 # editor / tools

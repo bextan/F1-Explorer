@@ -1,8 +1,6 @@
-// Hover highlights for the maps. Everything here only restyles existing SVG shapes in the browser,
-// so hovering never asks the server for anything and never makes plotly redraw the map.
+// Map hover highlights restyle the existing SVG shapes, so hovering never hits the server or redraws the map.
 (function () {
-    // ---------------------------------------------------------------- circuits map: hovered country
-    let country = null;   // {el, loc, style}
+    let country = null;
 
     function clearCountry() {
         if (country) {
@@ -16,7 +14,6 @@
         clearCountry();
         if (!loc) return;
         const gd = document.querySelector("#map .js-plotly-plot");
-        // the first choropleth trace is the layer of all countries
         const layer = gd && gd.querySelector(".trace.choropleth");
         if (!layer) return;
         const el = Array.from(layer.querySelectorAll("path.choroplethlocation"))
@@ -27,12 +24,10 @@
         el.style.stroke = "#ffffff";
         el.style.strokeWidth = "1.2px";
         el.style.strokeOpacity = "1";
-        el.parentNode.appendChild(el);   // on top of its neighbours, so the whole outline shows
+        el.parentNode.appendChild(el);
     }
 
-    // ---------------------------------------------------------------- driver / team pages: race list <-> map
-    // rows of the race lists carry data-map (id of their page's map), data-lon/lat, data-label, data-circuit
-    let point = null;     // {copy, label}
+    let point = null;
 
     function clearPoint() {
         if (point) {
@@ -51,8 +46,7 @@
             return ll && Math.abs(ll[0] - lon) < 1e-6 && Math.abs(ll[1] - lat) < 1e-6;
         });
         if (!el) return;
-        // draw an enlarged copy above every trace: restyling the marker itself left it under the markers of
-        // later traces (e.g. a red "raced here" circuit next to a gold one)
+        // an enlarged copy on top: restyling the marker itself left it under markers of later traces
         const label = document.getElementById(mapId + "-label");
         const copy = el.cloneNode(false);
         copy.setAttribute("transform", (el.getAttribute("transform") || "") + " scale(1.8)");
@@ -84,7 +78,7 @@
         }
     });
 
-    // rows of the team's race list have no dash ids (there can be 1000+), so their clicks go through a store
+    // rows of the team's race list have no dash ids, so their clicks go through a store
     document.addEventListener("click", function (e) {
         const row = e.target.closest && e.target.closest(".dr-race[data-race]");
         if (row && window.dash_clientside && window.dash_clientside.set_props) {
@@ -106,8 +100,7 @@
         return p && p.customdata ? p.customdata[0] : null;
     }
 
-    // ---------------------------------------------------------------- team page: race list
-    // built here as one html string: 1000+ rows as dash components took tens of seconds to render
+    // one html string: 1000+ rows as dash components took tens of seconds to render
     const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
         c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 

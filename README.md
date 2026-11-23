@@ -26,9 +26,9 @@ Three sources are combined, because none of them has everything:
 | [Jolpica F1](https://github.com/jolpica/jolpica-f1) (CSV database dump, successor of the Ergast API) | **lap-by-lap times and positions**, retirement status codes | laps from 1994 | Apache 2.0 / API terms of use |
 | [OpenF1](https://openf1.org) (REST API) | official **team colours**, driver photos, **tyre stints**, **weather** | 2023–2026 | CC BY-NC-SA 4.0 (non-commercial) |
 
-Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it again.
+Everything was downloaded on 16 Nov 2026. `python -m pipeline.download` downloads all of it again.
 
-## Data preparation (`prepare_data.py`)
+## Data preparation (`pipeline/`)
 
 **Joining the sources**
 - F1DB ↔ Jolpica: both number races by `(year, round)`, and all 1172 races match. Inside a race, results are matched by car number.
@@ -118,21 +118,38 @@ Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it
 
 ```
 pip install -r requirements.txt
-python download_data.py      # about 10–15 min (OpenF1 is rate-limited); skips files that already exist
-python prepare_data.py       # about 1 min
+python -m pipeline.download  # about 10–15 min (OpenF1 is rate-limited); skips files that already exist
+python -m pipeline.prepare   # about 1 min
 python app.py                # then open http://localhost:8050
 ```
 
-`python download_data.py --skip-openf1` skips the OpenF1 part. The app also runs without it, but without colours, tyres and weather for 2023+.
+`python -m pipeline.download --skip-openf1` skips the OpenF1 part. The app also runs without it, but without colours, tyres and weather for 2023+.
 
 ## Project structure
 
 ```
-download_data.py    downloads the three sources into data/raw/
-prepare_data.py     cleaning + joining -> data/processed/
-app.py              Dash layout and callbacks
-charts.py           all Plotly figures + the dark theme
-assets/style.css    page styling
+app.py                  creates the Dash app and runs it
+explorer/               the dashboard
+  data.py               loads data/processed/ and the lookups built from it
+  components.py         small shared layout pieces (cards, stats, links, sliders)
+  layout.py             page shell: header, tabs, stores, footer
+  navigation.py         tab switching and the driver/team page history
+  pages/                one module per page, each with its layout and callbacks
+    circuits.py         map, country panel, circuit header
+    race.py             classification, replay, lap chart, tyres for the chosen race
+    seasons.py  drivers.py  eras.py  driver_page.py  team_page.py
+  charts/               Plotly figures
+    theme.py            colours, dark template, empty figure
+    maps.py  replay.py  race.py  seasons.py  drivers.py  career.py  eras.py
+pipeline/               data download and preparation
+  download.py           downloads the three sources into data/raw/
+  prepare.py            runs the steps below and writes data/processed/
+  sources.py            paths and raw file readers
+  f1db.py  jolpica.py  openf1.py   one module per source
+  colours.py            team colour rules
+  tracks.py             track shapes from the SVGs
+  summaries.py          circuit summary, race flags, driver careers
+assets/                 page styling and the browser-side map hover code
 ```
 
 ## Limitations
