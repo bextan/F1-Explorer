@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from dash import ALL, ClientsideFunction, Dash, Input, Output, State, ctx, dcc, html, no_update
 
@@ -36,6 +37,15 @@ driver_options = [{"label": f"{r.name} ({r.first_year}–{r.last_year})", "value
                   for r in drivers.sort_values("starts", ascending=False).itertuples()]
 circuit_info = circuits.set_index("id")
 race_info = races.set_index("race_id")
+
+teams = pd.read_csv(D + "teams.csv").set_index("team_id")
+team_standings = pd.read_csv(D + "team_standings.csv")
+team_years = results.groupby("team_id")["year"].agg(["min", "max"])
+
+# one search box for both: values are "d:<driver_id>" or "t:<team_id>"
+search_options = [{"label": f"🏎 {r['name']} · team ({team_years.at[tid, 'min']}–{team_years.at[tid, 'max']})",
+                   "value": f"t:{tid}"} for tid, r in teams.sort_values("entries", ascending=False).iterrows()] + \
+                 [{"label": f"👤 {o['label']}", "value": f"d:{o['value']}"} for o in driver_options]
 
 app = Dash(__name__, title="F1 Explorer", suppress_callback_exceptions=True,
            external_stylesheets=["https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;700;900&display=swap"])
@@ -173,15 +183,45 @@ driver_page = html.Div([
     ], className="driver-row-2"),
 ])
 
+# ------------------------------------------------------------------ layout: team page (same idea as the driver page)
+team_page = html.Div([
+    html.Div([html.Button("← Back", id="team-back", className="close-btn"),
+              html.Div(id="team-head")], className="card head-card"),
+    html.Div([
+        html.Div([html.H3("Circuits raced at"),
+                  html.Div([dcc.Graph(id="team-map", config={**GRAPH_CONFIG, "scrollZoom": False},
+                                      clear_on_unhover=True),
+                            html.Div(id="team-map-label", className="map-label")], className="map-wrap"),
+                  html.P("Hover a race in the list to find it on the map, or a circuit to find its races. "
+                         "Click either to open the race.", className="note")], className="card"),
+        html.Div([html.Div([html.H3("Races"),
+                            dcc.Dropdown(id="team-season", clearable=False, searchable=False,
+                                         className="season-pick")], className="card-title-row"),
+                  html.Div(id="team-races", className="table-scroll dr-scroll")], className="card"),
+    ], className="driver-row"),
+    html.Div([
+        html.Div([html.H3("Season by season"), graph("team-seasons")], className="card"),
+        html.Div([html.H3("Drivers"), html.Div(id="team-drivers", className="table-scroll dr-scroll")],
+                 className="card"),
+    ], className="driver-row-2"),
+])
+
 app.layout = html.Div([
     dcc.Store(id="selection", data=None),
     dcc.Store(id="country", data=None),    # ISO-3 code of the clicked country
-    dcc.Store(id="driver", data=None),     # driver_id of the open driver page
+    dcc.Store(id="nav", data=[]),          # open driver/team pages, newest last: [{"kind": "team", "id": ...}, ...]
+    dcc.Store(id="driver", data=None),     # driver_id shown on the driver page
+    dcc.Store(id="team", data=None),       # team_id shown on the team page
+    dcc.Store(id="race-click"),            # set from the browser when a row of the team's race list is clicked
     dcc.Store(id="map-hover"),             # dummy outputs of the clientside hover highlights
     dcc.Store(id="driver-map-hover"),
+    dcc.Store(id="team-map-hover"),
+    dcc.Store(id="team-races-data"),      # rows of the team's race list, drawn in the browser
+    dcc.Store(id="team-races-render"),
     html.Div([html.H1(["F1 ", html.Span("EXPLORER")]),
               html.P(f"Every Formula 1 Grand Prix, {YEAR_MIN}–{YEAR_MAX}"),
-              dcc.Dropdown(id="driver-search", options=driver_options, placeholder="🔍 Search a driver…",
+              dcc.Dropdown(id="global-search", options=search_options,
+                           placeholder="🔍 Search a driver or team…",
                            searchable=True, clearable=True, className="driver-search")], className="header"),
     html.Div([
         # the tabs are only the menu; all pages stay in the page so links between them keep working
@@ -190,6 +230,7 @@ app.layout = html.Div([
             for name in PAGES]),
         *[html.Div(content, id=f"page-{name}", className="tab-page") for name, content in PAGES.items()],
         html.Div(driver_page, id="page-driver", className="tab-page hidden"),
+        html.Div(team_page, id="page-team", className="tab-page hidden"),
     ], className="page"),
     html.Div([
         "Data: ", html.A("F1DB", href="https://github.com/f1db/f1db"), " (results, circuits, track layouts) · ",
@@ -199,12 +240,14 @@ app.layout = html.Div([
 ])
 
 
-@app.callback([Output(f"page-{name}", "className") for name in PAGES] + [Output("page-driver", "className")],
-              Input("tabs", "value"), Input("driver", "data"))
-def switch_page(tab, driver):
-    # the driver page covers the current tab; "Back" just hides it again
-    pages = ["tab-page" if name == tab and not driver else "tab-page hidden" for name in PAGES]
-    return pages + ["tab-page" if driver else "tab-page hidden"]
+@app.callback([Output(f"page-{name}", "className") for name in PAGES] +
+              [Output("page-driver", "className"), Output("page-team", "className")],
+              Input("tabs", "value"), Input("nav", "data"))
+def switch_page(tab, nav):
+    # a driver/team page covers the current tab; "Back" goes to the previous page, then to the tab again
+    top = nav[-1]["kind"] if nav else None
+    pages = ["tab-page" if name == tab and not top else "tab-page hidden" for name in PAGES]
+    return pages + ["tab-page" if top == kind else "tab-page hidden" for kind in ("driver", "team")]
 
 
 # ================================================================== callbacks: circuits
@@ -321,20 +364,28 @@ def country_panel(iso3, search, types, years, calendar, race_id):
     Input({"type": "country-race", "id": ALL}, "n_clicks"),
     Input("matrix", "clickData"), Input("close", "n_clicks"),
     Input({"type": "driver-race", "id": ALL, "n": ALL}, "n_clicks"), Input("driver-map", "clickData"),
-    State("driver", "data"),
+    Input("team-map", "clickData"), Input("race-click", "data"),
+    State("driver", "data"), State("team", "data"),
     prevent_initial_call=True,
 )
 def select_circuit(map_click, item_clicks, race_clicks, matrix_click, close, driver_race_clicks, driver_map_click,
-                   driver):
+                   team_map_click, race_click, driver, team):
     trigger = ctx.triggered_id
     if trigger == "close":
         return None, no_update
-    if trigger == "driver-map" and driver_map_click and driver:
-        # open the driver's latest race at the clicked circuit
-        cid = driver_map_click["points"][0]["customdata"][0]
-        mine = results[(results["driver_id"] == driver) & (results["circuit_id"] == cid)]
+    if trigger in ("driver-map", "team-map"):
+        # open the driver's / team's latest race at the clicked circuit
+        click, col, who = (driver_map_click, "driver_id", driver) if trigger == "driver-map" else \
+            (team_map_click, "team_id", team)
+        if not click or not who:
+            return no_update, no_update
+        cid = click["points"][0]["customdata"][0]
+        mine = results[(results[col] == who) & (results["circuit_id"] == cid)]
         race_id = int(mine.sort_values("year")["race_id"].iloc[-1])
         return {"circuit": cid, "race": race_id}, "circuits"
+    if trigger == "race-click" and race_click:
+        race_id = int(race_click["race"])
+        return {"circuit": race_info.at[race_id, "circuit_id"], "race": race_id}, "circuits"
     if isinstance(trigger, dict) and trigger["type"] == "driver-race" and ctx.triggered[0]["value"]:
         return {"circuit": race_info.at[trigger["id"], "circuit_id"], "race": trigger["id"]}, "circuits"
     if trigger == "map" and map_click:
@@ -418,7 +469,8 @@ def classification_table(res):
             html.Td(photo),
             html.Td([html.B(r.driver, id={"type": "driver-link", "id": r.driver_id, "src": "race"}, n_clicks=0,
                             className="driver-link", title="Open driver page"),
-                     html.Br(), html.Span(r.team, className="team")]),
+                     html.Br(), html.Span(r.team, id={"type": "team-link", "id": r.team_id, "src": f"race-{r.driver_id}"},
+                                          n_clicks=0, className="team driver-link", title="Open team page")]),
             html.Td([html.Span(grid, className="team"), " ", gain]),
             html.Td(result),
             html.Td(f"{r.points:g}" if r.points else ""),
@@ -533,56 +585,93 @@ def show_eras(years):
     return charts.outcome_area(r), charts.engine_stream(r), charts.grid_heatmap(r), charts.age_violin(r)
 
 
-# ================================================================== callbacks: driver page
+# ================================================================== callbacks: driver + team pages
 @app.callback(
-    Output("driver", "data"), Output("driver-search", "value"),
-    # "src" keeps the ids unique when the same driver is linked from two places (race results, comparison table)
-    Input("driver-search", "value"), Input({"type": "driver-link", "id": ALL, "src": ALL}, "n_clicks"),
-    Input("driver-back", "n_clicks"), Input("tabs", "value"),
+    Output("nav", "data"), Output("driver", "data"), Output("team", "data"), Output("global-search", "value"),
+    Input("global-search", "value"),
+    # "src" keeps the ids unique when the same driver/team is linked from several places
+    Input({"type": "driver-link", "id": ALL, "src": ALL}, "n_clicks"),
+    Input({"type": "team-link", "id": ALL, "src": ALL}, "n_clicks"),
+    Input("driver-back", "n_clicks"), Input("team-back", "n_clicks"), Input("tabs", "value"),
     Input({"type": "driver-race", "id": ALL, "n": ALL}, "n_clicks"), Input("driver-map", "clickData"),
+    Input("team-map", "clickData"), Input("race-click", "data"),
+    State("nav", "data"),
     prevent_initial_call=True,
 )
-def set_driver(search, link_clicks, back, tab, race_clicks, map_click):
+def navigate(search, driver_links, team_links, driver_back, team_back, tab, race_clicks, driver_map, team_map,
+             race_click, nav):
+    nothing = (no_update,) * 4
     trigger = ctx.triggered_id
-    if trigger == "driver-search":
-        # empty the search box again, so the same driver can be searched twice
-        return (search, None) if search else (no_update, no_update)
-    if isinstance(trigger, dict):
+    nav = list(nav or [])
+    clear_search = no_update
+
+    def push(kind, id_):
+        page = {"kind": kind, "id": id_}
+        return nav if nav and nav[-1] == page else (nav + [page])[-20:]
+
+    if trigger == "global-search":
+        if not search:
+            return nothing
+        kind, id_ = search.split(":", 1)
+        nav = push("driver" if kind == "d" else "team", id_)
+        clear_search = None            # empty the box again, so the same name can be searched twice
+    elif isinstance(trigger, dict) and trigger["type"] in ("driver-link", "team-link", "driver-race"):
         if not ctx.triggered[0]["value"]:      # lists re-render with n_clicks=0
-            return no_update, no_update
-        if trigger["type"] == "driver-link":
-            return trigger["id"], no_update
-    # back button, another tab, or a race opened from the driver page
-    return None, no_update
+            return nothing
+        if trigger["type"] == "driver-race":
+            nav = []                            # a race was opened on the circuits tab
+        else:
+            nav = push(trigger["type"].split("-")[0], trigger["id"])
+    elif trigger in ("driver-back", "team-back"):
+        nav = nav[:-1]
+    else:                                       # another tab, or a race opened from a map / the team's list
+        nav = []
+
+    top = nav[-1] if nav else None
+    driver = top["id"] if top and top["kind"] == "driver" else no_update
+    team = top["id"] if top and top["kind"] == "team" else no_update
+    return nav, driver, team, clear_search
 
 
-def driver_circuits(res):
+def career_circuits(res):
+    """One row per circuit for the career maps (driver or team results)."""
     g = res.groupby("circuit_id").agg(
-        races=("race_id", "size"), wins=("is_win", "sum"), podiums=("is_podium", "sum"),
+        races=("race_id", "nunique"), wins=("is_win", "sum"), podiums=("is_podium", "sum"),
         best=("position", "min"), first=("year", "min"), last=("year", "max"))
     g["best"] = g["best"].map(lambda p: f"P{int(p)}" if pd.notna(p) else "–")
-    c = circuits[["id", "name", "place", "country", "latitude", "longitude"]].merge(g, left_on="id", right_index=True)
-    return c
+    return circuits[["id", "name", "place", "country", "latitude", "longitude"]].merge(g, left_on="id",
+                                                                                      right_index=True)
+
+
+def result_span(r):
+    if r.finished and pd.notna(r.position):
+        return html.Span(f"P{int(r.position)}", className="win" if r.is_win else ("pod" if r.is_podium else ""))
+    text = r.position_text if isinstance(r.position_text, str) and not r.position_text.isdigit() else r.outcome
+    return html.Span(text, className="out", title=r.outcome)
+
+
+def map_attrs(r, map_id):
+    """data-* attributes that let assets/map_hover.js find the row's circuit on the page's map."""
+    c = circuit_info.loc[r.circuit_id]
+    return {"data-circuit": r.circuit_id, "data-lon": str(c["longitude"]), "data-lat": str(c["latitude"]),
+            "data-label": f"{r.year} {r.gp} · {c['name']}", "data-map": map_id}
 
 
 def race_row(r, n):
-    if r.finished and pd.notna(r.position):
-        result = html.Span(f"P{int(r.position)}", className="win" if r.is_win else ("pod" if r.is_podium else ""))
-    else:
-        result = html.Span(r.position_text if isinstance(r.position_text, str) and not r.position_text.isdigit()
-                           else r.outcome, className="out", title=r.outcome)
-    c = circuit_info.loc[r.circuit_id]
     return html.Tr([
         html.Td(str(r.year), className="pos"),
         html.Td(className="bar", style={"background": r.colour}),
         html.Td([html.Div(r.gp), html.Span(r.team, className="team")]),
         html.Td(f"P{int(r.grid)}" if pd.notna(r.grid) else "pit", className="team"),
-        html.Td(result),
+        html.Td(result_span(r)),
         html.Td(f"{r.points:g}" if r.points else ""),
     ], id={"type": "driver-race", "id": int(r.race_id), "n": n}, n_clicks=0, className="dr-race",
-        title="Click to open this race",
-        **{"data-circuit": r.circuit_id, "data-lon": str(c["longitude"]), "data-lat": str(c["latitude"]),
-           "data-label": f"{r.year} {r.gp} · {c['name']}"})
+        title="Click to open this race", **map_attrs(r, "driver-map"))
+
+
+def team_link(team_id, name, src):
+    return html.B(name, id={"type": "team-link", "id": team_id, "src": src}, n_clicks=0, className="driver-link",
+                  title="Open team page")
 
 
 @app.callback(
@@ -633,26 +722,121 @@ def show_driver(did):
         ], className="driver-head-text"),
     ], className="driver-head")
 
-    races_table = html.Table(html.Tbody([race_row(r, n) for n, r in enumerate(res.itertuples())]), className="classification")
+    races_table = html.Table(html.Tbody([race_row(r, n) for n, r in enumerate(res.itertuples())]),
+                             className="classification")
 
-    teams = res.groupby(["team"]).agg(first=("year", "min"), last=("year", "max"), races=("race_id", "size"),
-                                      wins=("is_win", "sum"), podiums=("is_podium", "sum"),
-                                      colour=("colour", lambda c: c.value_counts().index[0]))
-    teams = teams.sort_values(["first", "last"]).reset_index()
+    their_teams = res.groupby(["team_id", "team"]).agg(
+        first=("year", "min"), last=("year", "max"), races=("race_id", "nunique"), wins=("is_win", "sum"),
+        podiums=("is_podium", "sum"), colour=("colour", lambda c: c.value_counts().index[0]))
+    their_teams = their_teams.sort_values(["first", "last"]).reset_index()
     team_list = html.Div([
         html.Div([
             html.Div(className="team-bar", style={"background": t.colour}),
-            html.Div([html.B(t.team), html.Div(f"{t.first}" + (f"–{t.last}" if t.last != t.first else ""),
-                                               className="team")]),
+            html.Div([team_link(t.team_id, t.team, f"driver-{did}"),
+                      html.Div(f"{t.first}" + (f"–{t.last}" if t.last != t.first else ""), className="team")]),
             html.Div(f"{t.races} races · {t.wins} wins · {t.podiums} podiums", className="team right"),
-        ], className="team-item") for t in teams.itertuples()])
+        ], className="team-item") for t in their_teams.itertuples()])
 
-    return head, charts.driver_map(driver_circuits(res)), races_table, \
-        charts.driver_seasons(res, champ), team_list
+    return head, charts.career_map(career_circuits(res)), races_table, \
+        charts.career_seasons(res, champ), team_list
+
+
+@app.callback(
+    Output("team-head", "children"), Output("team-map", "figure"), Output("team-seasons", "figure"),
+    Output("team-drivers", "children"), Output("team-season", "options"), Output("team-season", "value"),
+    Input("team", "data"),
+)
+def show_team(tid):
+    if not tid:
+        e = charts.empty("")
+        return "", e, e, "", [], None
+    t = teams.loc[tid]
+    res = results[results["team_id"] == tid]
+    champ = team_standings[team_standings["team_id"] == tid].sort_values("year")
+    colour = res.sort_values("year")["colour"].iloc[-1]
+    first, last = int(res["year"].min()), int(res["year"].max())
+
+    engines = res["engine"].value_counts().index[:4].tolist()
+    sub = [t["full_name"]] if t["full_name"] != t["name"] else []
+    sub += [t["country"], f"{first}–{last}" if first != last else str(first)]
+    if engines:
+        sub.append("engines: " + ", ".join(engines))
+    badge = html.Div("".join(w[0] for w in t["name"].split()[:3]).upper() if " " in t["name"] else t["name"][:3].upper(),
+                     className="driver-photo initials team-badge", style={"background": colour})
+    n_races = res["race_id"].nunique()
+    head = html.Div([
+        badge,
+        html.Div([
+            html.Div([html.H2(t["name"]), html.Div(" · ".join(sub), className="sub")], className="circuit-head"),
+            html.Div([
+                stat(res["year"].nunique(), "seasons"),
+                stat(n_races, "races"),
+                stat(int(t["wins"]), "wins"),
+                stat(int(t["podiums"]), "podiums"),
+                stat(int(t["one_twos"]), "1–2 finishes"),
+                stat(int(t["poles"]), "poles"),
+                stat(int(t["titles"]), "constructors' titles"),
+                stat(f"{t['points']:g}", "points"),
+                stat(f"{t['wins'] / n_races:.1%}" if n_races else "–", "races won"),
+                stat(f"P{int(t['best_championship'])}" if pd.notna(t["best_championship"]) else "–",
+                     "best championship"),
+                stat(res["driver_id"].nunique(), "drivers"),
+            ], className="stats"),
+        ], className="driver-head-text"),
+    ], className="driver-head")
+
+    ds = res.groupby(["driver_id", "driver"]).agg(
+        first=("year", "min"), last=("year", "max"), races=("race_id", "nunique"), wins=("is_win", "sum"),
+        podiums=("is_podium", "sum")).reset_index().sort_values(["races", "wins"], ascending=False)
+    driver_list = html.Div([
+        html.Div([
+            html.Div([html.B(d.driver, id={"type": "driver-link", "id": d.driver_id, "src": f"team-{tid}"},
+                             n_clicks=0, className="driver-link", title="Open driver page"),
+                      html.Div(f"{d.first}" + (f"–{d.last}" if d.last != d.first else ""), className="team")]),
+            html.Div(f"{d.races} races · {d.wins} wins · {d.podiums} podiums", className="team right"),
+        ], className="team-item") for d in ds.itertuples()])
+
+    seasons = sorted(res["year"].unique(), reverse=True)
+    options = [{"label": "All seasons", "value": "all"}] + [{"label": str(y), "value": int(y)} for y in seasons]
+    return head, charts.career_map(career_circuits(res)), \
+        charts.career_seasons(res, champ, ytitle="Car entries"), driver_list, options, "all"
+
+
+@app.callback(Output("team-races-data", "data"), Input("team", "data"), Input("team-season", "value"))
+def team_races(tid, season):
+    if not tid or season is None:
+        return None
+    res = results[results["team_id"] == tid]
+    if season != "all":
+        res = res[res["year"] == season]
+    place = circuits[["id", "name", "latitude", "longitude"]].rename(columns={"id": "circuit_id", "name": "cname"})
+    res = res.merge(races[["race_id", "date", "gp"]], on="race_id").merge(place, on="circuit_id")
+    res = res.sort_values(["date", "position_order"], ascending=[False, True])
+
+    # One row per race with every car of the team. Ferrari has 1100+ races, which as dash components took
+    # tens of seconds to render, so only the data is sent and assets/map_hover.js builds the table in one go.
+    # Everything is done column-wise; a python loop over the races took ~4 s for Ferrari.
+    ok = res["finished"] & res["position"].notna()
+    pt = res["position_text"].astype("string")
+    other = pt.where(pt.notna() & ~pt.str.isdigit().fillna(False), res["outcome"])
+    text = np.where(ok, "P" + res["position"].fillna(0).astype(int).astype(str), other)
+    cls = np.select([ok & res["is_win"], ok & res["is_podium"], ok], ["win", "pod", ""], "out")
+    res["car"] = list(zip(res["driver"].str.split().str[-1], text, cls, res["outcome"]))
+    g = res.groupby("race_id", sort=False).agg(
+        year=("year", "first"), colour=("colour", "first"), gp=("gp", "first"), cars=("car", list),
+        points=("points", "sum"), circuit=("circuit_id", "first"), cname=("cname", "first"),
+        lon=("longitude", "first"), lat=("latitude", "first"))
+    return [{"race": int(r.Index), "year": int(r.year), "colour": r.colour, "gp": r.gp, "cars": r.cars,
+             "points": f"{r.points:g}" if r.points else "", "circuit": r.circuit, "lon": str(r.lon),
+             "lat": str(r.lat), "label": f"{r.year} {r.gp} · {r.cname}"} for r in g.itertuples()]
 
 
 app.clientside_callback(ClientsideFunction("map", "driverHover"), Output("driver-map-hover", "data"),
                         Input("driver-map", "hoverData"))
+app.clientside_callback(ClientsideFunction("map", "teamHover"), Output("team-map-hover", "data"),
+                        Input("team-map", "hoverData"))
+app.clientside_callback(ClientsideFunction("map", "renderTeamRaces"), Output("team-races-render", "data"),
+                        Input("team-races-data", "data"))
 
 
 if __name__ == "__main__":

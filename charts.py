@@ -412,8 +412,8 @@ def career_lines(season_pos, names, colours):
 
 
 # ===================================================================== driver page
-def driver_map(circuits):
-    """Flat map of the circuits a driver raced at. `circuits` has one row per circuit with
+def career_map(circuits):
+    """Flat map of the circuits a driver or team raced at. `circuits` has one row per circuit with
     id, name, place, country, latitude, longitude, races, wins, podiums, best, first, last."""
     fig = go.Figure()
     groups = [("Won here", circuits["wins"] > 0, "#ffd12e"),
@@ -437,7 +437,7 @@ def driver_map(circuits):
                     showcoastlines=True, coastlinecolor="#3a3a50", showocean=True, oceancolor=BG,
                     showlakes=False, bgcolor="rgba(0,0,0,0)", showframe=False,
                     projection_type="natural earth", fitbounds=False)
-    fig.update_layout(height=430, margin=dict(l=0, r=0, t=10, b=0), uirevision="driver-map",
+    fig.update_layout(height=430, margin=dict(l=0, r=0, t=10, b=0), uirevision="career-map",
                       legend=dict(orientation="h", y=0.02, x=0.01, font=dict(size=12)))
     return fig
 
@@ -446,7 +446,7 @@ SEASON_COLOURS = {"Win": "#ffd12e", "Podium": "#27f4d2", "Points": "#2a9d8f", "N
                   "Did not finish": "#e76f51"}
 
 
-def driver_seasons(res, champ):
+def career_seasons(res, champ, ytitle="Races"):
     """Stacked bars of how every race of a season ended, plus the championship position."""
     if res.empty:
         return empty("No races", 340)
@@ -463,14 +463,16 @@ def driver_seasons(res, champ):
             fig.add_bar(x=counts.index, y=counts[kind], name=kind, marker_color=colour,
                         hovertemplate=f"%{{x}}: %{{y}} × {kind.lower()}<extra></extra>")
     if not champ.empty:
+        # position labels only when they fit (a 70-season team would be a wall of text)
         fig.add_scatter(x=champ["year"], y=champ["position"], name="Championship", yaxis="y2",
-                        mode="lines+markers+text", text=["P" + str(int(p)) for p in champ["position"]],
+                        mode="lines+markers+text" if len(champ) <= 25 else "lines+markers",
+                        text=["P" + str(int(p)) for p in champ["position"]],
                         textposition="top center", textfont=dict(size=10, color=TEXT),
                         line=dict(color="white", width=1.5, dash="dot"), marker=dict(size=6, color="white"),
                         hovertemplate="%{x}: P%{y} in the championship<extra></extra>")
     fig.update_layout(
         barmode="stack", height=360, margin=dict(t=30, b=40, r=50),
-        yaxis=dict(title="Races"),
+        yaxis=dict(title=ytitle),
         # P1 at the top; an explicit range, autorange gave odd ticks (0.33) when every season was P1
         yaxis2=dict(title="Championship", overlaying="y", side="right", showgrid=False, zeroline=False,
                     range=[(champ["position"].max() if len(champ) else 1) + 1.5, 0.3],

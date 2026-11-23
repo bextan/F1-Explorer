@@ -68,6 +68,8 @@ Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it
 | `standings.csv` | 21 660 | championship standings after each round |
 | `pit_stops.csv` | 22 755 | pit stops (1994+) |
 | `stints.csv` | 5 256 | tyre stints (2023+) |
+| `teams.csv` | 180 | team career totals (titles, wins, podiums, poles, points) |
+| `team_standings.csv` | 719 | constructors' championship position at the end of every season (1958+) |
 | `countries.csv` | 249 | every country with its ISO-3 code, for the clickable country layer |
 | `tracks.csv` | 64 000 | 400 points × 160 track layouts |
 
@@ -95,12 +97,15 @@ Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it
 - A scatter of every driver with 10+ starts: starts vs. win rate, with bubble size for titles and colour for debut year.
 - Searching for drivers or clicking dots adds them to the comparison: career championship positions plus a stats table.
 
-**Driver page**
-- Search any driver from the box in the header, or click a driver's name in a race classification or the comparison table.
+**Driver and team pages**
+- Search any driver or team (e.g. Red Bull, Ferrari) from the box in the header, or click a driver's or team's name in a race classification, the comparison table, a driver's team list or a team's driver list.
 - The page shows their stats, a flat map of every circuit they raced at (gold = won there, teal = podium),
   every race they started, a season-by-season chart with their championship position, and their teams.
 - Hovering a race in the list highlights its circuit on the map; hovering a circuit highlights its races in the list.
   Clicking either opens that race on the Circuits tab. **Back** returns to where you were.
+- The team page shows the team's stats and constructors' titles, engines used, the same circuit map, every race with
+  all its cars (filter by season), car results per season with the constructors' championship position, and every
+  driver who raced for the team. Going driver -> team -> driver keeps a history, so **Back** walks back through it.
 
 **Eras**
 - How races end per season (100% stacked area).

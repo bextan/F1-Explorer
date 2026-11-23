@@ -243,3 +243,10 @@ body {
 .team-item .team-bar { width: 5px; align-self: stretch; border-radius: 3px; }
 .team-item .team { color: var(--muted); font-size: 13px; }
 .team-item .right { margin-left: auto; text-align: right; }
+
+/* ---------- team page ---------- */
+.team-badge { border-radius: 14px; font-size: 26px; }
+.card-title-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
+.card-title-row h3 { margin: 0; }
+.season-pick { width: 150px; }
+.dr-race .team .win, .dr-race .team .pod { font-size: 12px; }
