@@ -129,7 +129,11 @@
                 + "<td><div>" + esc(r.gp) + '</div><div class="team">' + cars + "</div></td>"
                 + "<td>" + esc(r.points) + "</td></tr>";
         }).join("");
-        el.innerHTML = '<table class="classification"><tbody>' + body + "</tbody></table>";
+        const head = "<thead><tr><th>Year</th><th></th>"
+            + '<th title="Every car of the team in that race, with its finishing position">'
+            + "Race · finishing position of each car</th>"
+            + '<th title="Championship points scored by all the team\'s cars">Pts</th></tr></thead>';
+        el.innerHTML = '<table class="classification">' + head + "<tbody>" + body + "</tbody></table>";
         el.scrollTop = 0;
     }
 

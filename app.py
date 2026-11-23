@@ -62,6 +62,11 @@ def stat(value, label):
     return html.Div([html.Div(value, className="v"), html.Div(label, className="l")], className="stat")
 
 
+def table_head(*cols):
+    """Header row of a results table. A column is a label, or (label, tooltip explaining it)."""
+    return html.Thead(html.Tr([html.Th(c[0], title=c[1]) if isinstance(c, tuple) else html.Th(c) for c in cols]))
+
+
 def year_slider(id_, start=1950):
     marks = {y: str(y) for y in range(1950, YEAR_MAX + 1, 10)}
     marks[YEAR_MAX] = str(YEAR_MAX)
@@ -467,7 +472,7 @@ def classification_table(res):
             reason = r.retired_reason if isinstance(r.retired_reason, str) else r.outcome
             result = html.Span(f"{r.position_text} · {reason}", className="out")
         photo = html.Img(src=r.headshot_url) if isinstance(r.headshot_url, str) else ""
-        grid = f"P{int(r.grid)}" if pd.notna(r.grid) else "pit"
+        grid = f"P{int(r.grid)}" if pd.notna(r.grid) else "pit lane"
         rows.append(html.Tr([
             html.Td(r.position_text if not str(r.position_text).isdigit() else r.position_text, className="pos"),
             html.Td(className="bar", style={"background": r.colour}),
@@ -476,11 +481,17 @@ def classification_table(res):
                             className="driver-link", title="Open driver page"),
                      html.Br(), html.Span(r.team, id={"type": "team-link", "id": r.team_id, "src": f"race-{r.driver_id}"},
                                           n_clicks=0, className="team driver-link", title="Open team page")]),
-            html.Td([html.Span(grid, className="team"), " ", gain]),
+            html.Td(grid, className="team"),
+            html.Td(gain),
             html.Td(result),
             html.Td(f"{r.points:g}" if r.points else ""),
         ]))
-    return html.Table(html.Tbody(rows), className="classification")
+    head = table_head(("Pos", "Finishing position"), "", "", ("Driver / team", "Click a name to open its page"),
+                      ("Start", "Grid position at the start"),
+                      ("Gained", "Places gained (▲) or lost (▼) from start to finish"),
+                      ("Time / gap", "Winner's race time, gap to the winner, or why the car retired"),
+                      ("Pts", "Championship points scored"))
+    return html.Table([head, html.Tbody(rows)], className="classification")
 
 
 @app.callback(
@@ -727,7 +738,10 @@ def show_driver(did):
         ], className="driver-head-text"),
     ], className="driver-head")
 
-    races_table = html.Table(html.Tbody([race_row(r, n) for n, r in enumerate(res.itertuples())]),
+    head = table_head("Year", "", ("Race / team", "Click a race to open it"),
+                      ("Start", "Grid position at the start"), ("Finish", "Finishing position, or why the car retired"),
+                      ("Pts", "Championship points scored"))
+    races_table = html.Table([head, html.Tbody([race_row(r, n) for n, r in enumerate(res.itertuples())])],
                              className="classification")
 
     their_teams = res.groupby(["team_id", "team"]).agg(
