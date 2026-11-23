@@ -411,6 +411,76 @@ def career_lines(season_pos, names, colours):
     return fig
 
 
+# ===================================================================== driver page
+def driver_map(circuits):
+    """Flat map of the circuits a driver raced at. `circuits` has one row per circuit with
+    id, name, place, country, latitude, longitude, races, wins, podiums, best, first, last."""
+    fig = go.Figure()
+    groups = [("Won here", circuits["wins"] > 0, "#ffd12e"),
+              ("Podium here", (circuits["wins"] == 0) & (circuits["podiums"] > 0), "#27f4d2"),
+              ("Raced here", circuits["podiums"] == 0, RED)]
+    for label, mask, colour in groups:
+        g = circuits[mask]
+        if g.empty:
+            continue
+        fig.add_scattergeo(
+            lat=g["latitude"], lon=g["longitude"], name=label,
+            customdata=g[["id", "name", "place", "country", "races", "wins", "podiums", "best", "first", "last"]],
+            marker=dict(size=8 + np.sqrt(g["races"]) * 4, color=colour, opacity=0.9,
+                        line=dict(color="white", width=0.8)),
+            hovertemplate="<b>%{customdata[1]}</b><br>%{customdata[2]}, %{customdata[3]}"
+                          "<br>%{customdata[4]} races (%{customdata[8]}–%{customdata[9]})"
+                          "<br>%{customdata[5]} wins · %{customdata[6]} podiums · best %{customdata[7]}"
+                          "<extra>click to open the latest race here</extra>",
+        )
+    fig.update_geos(showland=True, landcolor="#262634", showcountries=True, countrycolor="#3a3a50",
+                    showcoastlines=True, coastlinecolor="#3a3a50", showocean=True, oceancolor=BG,
+                    showlakes=False, bgcolor="rgba(0,0,0,0)", showframe=False,
+                    projection_type="natural earth", fitbounds=False)
+    fig.update_layout(height=430, margin=dict(l=0, r=0, t=10, b=0), uirevision="driver-map",
+                      legend=dict(orientation="h", y=0.02, x=0.01, font=dict(size=12)))
+    return fig
+
+
+SEASON_COLOURS = {"Win": "#ffd12e", "Podium": "#27f4d2", "Points": "#2a9d8f", "No points": "#4a4a62",
+                  "Did not finish": "#e76f51"}
+
+
+def driver_seasons(res, champ):
+    """Stacked bars of how every race of a season ended, plus the championship position."""
+    if res.empty:
+        return empty("No races", 340)
+    r = res.copy()
+    r["kind"] = np.select(
+        [r["is_win"], r["is_podium"], r["finished"] & (r["points"] > 0), r["finished"]],
+        ["Win", "Podium", "Points", "No points"], default="Did not finish")
+    counts = r.pivot_table(index="year", columns="kind", values="race_id", aggfunc="count", fill_value=0)
+    years = list(range(r["year"].min(), r["year"].max() + 1))
+    counts = counts.reindex(years, fill_value=0)
+    fig = go.Figure()
+    for kind, colour in SEASON_COLOURS.items():
+        if kind in counts:
+            fig.add_bar(x=counts.index, y=counts[kind], name=kind, marker_color=colour,
+                        hovertemplate=f"%{{x}}: %{{y}} × {kind.lower()}<extra></extra>")
+    if not champ.empty:
+        fig.add_scatter(x=champ["year"], y=champ["position"], name="Championship", yaxis="y2",
+                        mode="lines+markers+text", text=["P" + str(int(p)) for p in champ["position"]],
+                        textposition="top center", textfont=dict(size=10, color=TEXT),
+                        line=dict(color="white", width=1.5, dash="dot"), marker=dict(size=6, color="white"),
+                        hovertemplate="%{x}: P%{y} in the championship<extra></extra>")
+    fig.update_layout(
+        barmode="stack", height=360, margin=dict(t=30, b=40, r=50),
+        yaxis=dict(title="Races"),
+        # P1 at the top; an explicit range, autorange gave odd ticks (0.33) when every season was P1
+        yaxis2=dict(title="Championship", overlaying="y", side="right", showgrid=False, zeroline=False,
+                    range=[(champ["position"].max() if len(champ) else 1) + 1.5, 0.3],
+                    tickprefix="P", dtick=1 if len(champ) and champ["position"].max() <= 10 else 5),
+        legend=dict(orientation="h", y=1.12, font=dict(size=11)),
+        xaxis=dict(dtick=1 if len(years) < 16 else None),
+    )
+    return fig
+
+
 # ===================================================================== eras
 def outcome_area(results):
     share = results.groupby(["year", "outcome"]).size().rename("n").reset_index()

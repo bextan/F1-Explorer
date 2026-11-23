@@ -210,3 +210,36 @@ body {
 .race-item .yr { font-weight: 900; min-width: 38px; }
 .race-item small { color: var(--muted); }
 .race-item.active small { color: #fff; }
+
+/* ---------- driver search (header) ---------- */
+.header .driver-search { margin-left: auto; width: 340px; align-self: center; }
+.driver-link { cursor: pointer; }
+.driver-link:hover { color: var(--red); text-decoration: underline; }
+
+/* ---------- driver page ---------- */
+.driver-head { display: flex; gap: 20px; align-items: flex-start; }
+.driver-head-text { flex: 1; min-width: 0; }
+.driver-photo { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; flex: none;
+                background: var(--panel-2); border: 3px solid var(--red); }
+.driver-photo.initials { display: flex; align-items: center; justify-content: center;
+                         font-size: 30px; font-weight: 900; color: #fff; }
+.driver-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+.driver-row-2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; }
+@media (max-width: 1200px) { .driver-row, .driver-row-2 { grid-template-columns: 1fr; } }
+
+.dr-scroll { max-height: 470px; }
+.dr-race { cursor: pointer; }
+.dr-race.hl td { background: rgba(225, 6, 0, 0.28); }
+.classification .win { color: #ffd12e; font-weight: 700; }
+.classification .pod { color: #27f4d2; font-weight: 700; }
+
+.map-wrap { position: relative; }
+.map-label { position: absolute; top: 10px; left: 10px; background: rgba(30, 30, 42, 0.95);
+             border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 6px;
+             padding: 4px 10px; font-size: 13px; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+.map-label.show { opacity: 1; }
+
+.team-item { display: flex; align-items: center; gap: 12px; padding: 8px 4px; border-bottom: 1px solid #262636; }
+.team-item .team-bar { width: 5px; align-self: stretch; border-radius: 3px; }
+.team-item .team { color: var(--muted); font-size: 13px; }
+.team-item .right { margin-left: auto; text-align: right; }

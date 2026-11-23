@@ -95,6 +95,13 @@ Everything was downloaded on 16 Nov 2026. `download_data.py` downloads all of it
 - A scatter of every driver with 10+ starts: starts vs. win rate, with bubble size for titles and colour for debut year.
 - Searching for drivers or clicking dots adds them to the comparison: career championship positions plus a stats table.
 
+**Driver page**
+- Search any driver from the box in the header, or click a driver's name in a race classification or the comparison table.
+- The page shows their stats, a flat map of every circuit they raced at (gold = won there, teal = podium),
+  every race they started, a season-by-season chart with their championship position, and their teams.
+- Hovering a race in the list highlights its circuit on the map; hovering a circuit highlights its races in the list.
+  Clicking either opens that race on the Circuits tab. **Back** returns to where you were.
+
 **Eras**
 - How races end per season (100% stacked area).
 - Share of wins by engine manufacturer (3-season rolling window).
