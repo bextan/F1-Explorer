@@ -139,6 +139,20 @@ standings = f1db("races-driver-standings")[["raceId", "year", "round", "driverId
 standings.columns = ["race_id", "year", "round", "driver_id", "points", "position"]
 standings["driver"] = standings["driver_id"].map(drivers.set_index("id")["name"])
 
+# ---------- teams: career totals (F1DB) + their constructors' championship position at the end of each season
+teams = f1db("constructors").rename(columns={
+    "id": "team_id", "fullName": "full_name", "totalChampionshipWins": "titles", "totalRaceEntries": "entries",
+    "totalRaceStarts": "starts", "totalRaceWins": "wins", "total1And2Finishes": "one_twos", "totalPodiums": "podiums",
+    "totalPolePositions": "poles", "totalPoints": "points", "bestChampionshipPosition": "best_championship"})
+teams["country"] = teams["countryId"].map(countries)
+teams = teams[["team_id", "name", "full_name", "country", "titles", "entries", "starts", "wins", "one_twos",
+               "podiums", "poles", "points", "best_championship"]]
+
+cs = f1db("races-constructor-standings")
+cs = cs[cs["round"] == cs.groupby("year")["round"].transform("max")]   # standings after the last round
+team_standings = cs[["year", "constructorId", "positionNumber", "points", "championshipWon"]]
+team_standings.columns = ["year", "team_id", "position", "points", "champion"]
+
 # ============================================================ OpenF1 (2023+)
 of1 = RAW / "openf1"
 sessions = pd.DataFrame(json.loads((of1 / "race_sessions.json").read_text()))
@@ -286,7 +300,8 @@ career = career[["id", "name", "abbreviation", "nationality", "dateOfBirth", "st
 world = country_table[["alpha3Code", "name"]].dropna().rename(columns={"alpha3Code": "iso3"})
 
 # ============================================================ save
-tables = {"countries": world, "drivers": career, "circuits": circuits, "races": races, "results": results, "laps": laps, "pit_stops": pits,
+teams = teams[teams["team_id"].isin(results["team_id"])]   # only teams that actually started a race
+tables = {"countries": world, "teams": teams, "team_standings": team_standings,"drivers": career, "circuits": circuits, "races": races, "results": results, "laps": laps, "pit_stops": pits,
           "standings": standings, "stints": stints, "tracks": tracks}
 for name, table in tables.items():
     table.to_csv(OUT / f"{name}.csv", index=False)
