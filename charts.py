@@ -223,17 +223,22 @@ def race_replay(race, track, results, laps, direction, frames_per_lap=3):
                           frame=dict(duration=0, redraw=False), transition=dict(duration=0))]))
     fig.frames = frames
 
-    play = dict(frame=dict(duration=90, redraw=False), transition=dict(duration=80, easing="linear"),
-                fromcurrent=True, mode="immediate")
+    def play(speed):
+        # one play button per speed; clicking another one while playing switches speed from where it is
+        return dict(label=f"▶ {speed:g}×", method="animate",
+                    args=[None, dict(frame=dict(duration=90 / speed, redraw=False),
+                                     transition=dict(duration=80 / speed, easing="linear"),
+                                     fromcurrent=True, mode="immediate")])
+
     fig.update_layout(
         height=520, title=dict(text="Race replay", font=dict(size=15)),
-        margin=dict(l=10, r=10, t=45, b=60),
+        margin=dict(l=10, r=10, t=45, b=95),
         updatemenus=[dict(type="buttons", direction="left", x=0.0, y=-0.02, xanchor="left", yanchor="top",
-                          bgcolor=PANEL, bordercolor=GRID, font=dict(color=TEXT), showactive=False,
-                          buttons=[dict(label="▶ Play", method="animate", args=[None, play]),
+                          bgcolor=PANEL, bordercolor=GRID, font=dict(color=TEXT), showactive=True, active=-1,
+                          buttons=[play(0.5), play(1), play(2), play(4),
                                    dict(label="❚❚", method="animate",
                                         args=[[None], dict(mode="immediate", frame=dict(duration=0))])])],
-        sliders=[dict(steps=steps, x=0.16, len=0.84, y=-0.02, yanchor="top", ticklen=0,
+        sliders=[dict(steps=steps, x=0.0, len=1.0, y=-0.1, yanchor="top", ticklen=0,
                       tickcolor="rgba(0,0,0,0)", font=dict(color="rgba(0,0,0,0)"),
                       bgcolor=GRID, activebgcolor=RED, bordercolor=GRID, currentvalue=dict(visible=False))],
     )
